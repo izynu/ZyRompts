@@ -42,6 +42,9 @@
 }
 
 :root {
+  /* Native controls and scrollbars follow the light palette by default. */
+  color-scheme: light;
+
   /* Ground and text */
   --bg: #e7edef;
   --bg-soft: #f4f7f8;
