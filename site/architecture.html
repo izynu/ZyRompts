@@ -120,9 +120,10 @@
           Skills carry frontmatter for <code>name</code>, <code>description</code>,
           <code>allowed-tools</code>, <code>argument-hint</code>,
           <code>depends-on</code> and <code>optional-depends-on</code>. The body is
-          the procedure. Agent contracts mirror <code>agents.py:REGISTRY</code>
-          exactly, and a test fails if the two drift apart. Hook rules are one
-          JSON file per rule.
+          the procedure. Six of the thirteen roles also have a written contract in
+          <code>agents/</code>; a parametrised test checks each of those against
+          <code>agents.py:REGISTRY</code> and fails if they drift apart. Hook rules
+          are one JSON file per rule.
         </p>
         <p>Everything else in the repository is generated or derived.</p>
       </section>

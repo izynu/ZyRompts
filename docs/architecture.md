@@ -35,8 +35,9 @@ behaviour that guides is data.**
 - `skills/<name>/SKILL.md`: the skill contracts. Frontmatter carries `name`,
   `description`, `allowed-tools`, `argument-hint`, `depends-on`,
   `optional-depends-on`. The body is the procedure.
-- `agents/<role>.md`: the agent contracts. Frontmatter mirrors
-  `agents.py:REGISTRY` exactly; a test fails if the two drift.
+- `agents/<role>.md`: written contracts for six of the thirteen roles.
+  Frontmatter mirrors `agents.py:REGISTRY`; a parametrised test checks each
+  file against the registry and fails if the two drift.
 - `hooks/rules/<Event>/*.json`: one rule per file.
 
 Everything else is generated or derived.
