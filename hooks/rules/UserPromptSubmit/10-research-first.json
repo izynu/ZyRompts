@@ -1,0 +1,19 @@
+{
+  "id": "research-first",
+  "event": "UserPromptSubmit",
+  "description": "When the prompt asks for current or external facts, push research before answering and require citations. High-recall keyword gate, so it leads with a condition and self-cancels.",
+  "criteria": {
+    "match": ["\\b(latest|current|as of|newest|recent|version|release|docs?|documentation|best practice|compare|alternative|recommend)\\b"],
+    "flags": ["ignorecase"],
+    "non_slash": true
+  },
+  "action": {
+    "type": "inject_context",
+    "text": [
+      "If answering needs current external facts (a version, a release, an API shape, a comparison): research first and cite the source.",
+      "Prefer official documentation and the repository itself over blog posts. If two sources disagree, say so rather than picking one silently.",
+      "If this is answerable from the code in front of you, ignore this guidance."
+    ]
+  },
+  "priority": 10
+}

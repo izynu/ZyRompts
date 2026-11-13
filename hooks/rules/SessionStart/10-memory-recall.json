@@ -1,0 +1,7 @@
+{
+  "id": "memory-recall",
+  "event": "SessionStart",
+  "description": "Restore persisted project state (goal, phase, decisions, known issues) so a new session does not re-derive it. Silent when no state file exists.",
+  "handler": "memory_recall",
+  "priority": 10
+}

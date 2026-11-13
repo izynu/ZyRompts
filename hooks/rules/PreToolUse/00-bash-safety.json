@@ -1,0 +1,26 @@
+{
+  "id": "bash-safety",
+  "event": "PreToolUse",
+  "description": "Warn on destructive shell patterns at the point of use. This is advisory context, not the security control: the policy engine in core/zyrompts/policy.py makes the actual allow/deny decision, because prompt text can be argued with and code cannot.",
+  "criteria": {
+    "match_target": "command",
+    "match": [
+      "\\brm\\s+-[a-zA-Z]*[rf]",
+      "\\bgit\\s+(push\\s+.*--force|reset\\s+--hard|clean\\s+-[a-zA-Z]*f)",
+      "\\bdrop\\s+(table|database|schema)\\b",
+      "\\btruncate\\s+table\\b",
+      "\\bchmod\\s+-R\\s+777",
+      "\\bcurl\\b[^|;]*\\|\\s*(ba|z|k)?sh\\b"
+    ],
+    "flags": ["ignorecase"]
+  },
+  "action": {
+    "type": "inject_context",
+    "text": [
+      "This command looks destructive or irreversible. State exactly what it will delete or overwrite, confirm the path is the intended one, and get explicit approval before running it.",
+      "If it is a dry run or scoped to a scratch directory, say so and continue."
+    ]
+  },
+  "bypass": "none",
+  "priority": 0
+}

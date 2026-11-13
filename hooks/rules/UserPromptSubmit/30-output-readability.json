@@ -1,0 +1,18 @@
+{
+  "id": "output-readability",
+  "event": "UserPromptSubmit",
+  "description": "Self-cancelling reminder to structure substantial deliverables for human scanning.",
+  "criteria": {
+    "match": ["\\b(report|summary|summari[sz]e|review|analysis|analy[sz]e|compare|comparison|breakdown|write[- ]?up|overview|audit|explain)\\b"],
+    "flags": ["ignorecase"],
+    "non_slash": true
+  },
+  "action": {
+    "type": "inject_context",
+    "text": [
+      "If the response will be a substantial deliverable: lead with the conclusion, use short sections and tables over walls of prose, and keep it terse.",
+      "If this is a quick back-and-forth, ignore this guidance."
+    ]
+  },
+  "priority": 30
+}

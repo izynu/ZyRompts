@@ -1,0 +1,18 @@
+{
+  "id": "write-scope",
+  "event": "PreToolUse",
+  "description": "Before a file write or edit, remind that the path must be inside the workspace and the change must match the approved plan or request.",
+  "criteria": {
+    "match_target": "tool_name",
+    "match": ["^(Write|Edit|MultiEdit|NotebookEdit)$"]
+  },
+  "action": {
+    "type": "inject_context",
+    "text": [
+      "Before writing: confirm the path is inside the project workspace and is a file the current task actually owns.",
+      "Do not overwrite a file you have not read in this session. If the change is larger than the request, stop and confirm scope."
+    ]
+  },
+  "bypass": "none",
+  "priority": 20
+}

@@ -1,0 +1,25 @@
+{
+  "id": "background-exec",
+  "event": "PreToolUse",
+  "description": "On a long-running or never-exiting command, run it in the background and poll only what matters.",
+  "criteria": {
+    "match_target": "command",
+    "match": [
+      "\\b(npm|pnpm|yarn|bun)\\s+(run\\s+)?(dev|start|serve|watch)\\b",
+      "\\b(vite|webpack(-dev-server)?|nodemon|next\\s+dev|flask\\s+run|uvicorn|gunicorn|air)\\b",
+      "--watch\\b",
+      "\\btail\\s+-[fF]\\b",
+      "\\b(http\\.server|live-server|serve)\\b"
+    ],
+    "flags": ["ignorecase"]
+  },
+  "action": {
+    "type": "inject_context",
+    "text": [
+      "This is a long-running or never-exiting process. Run it in the background rather than blocking the turn.",
+      "When polling it, surface only the signal you are waiting for (the ready line, the error), filtered at the source.",
+      "If the command is short-lived, ignore this guidance."
+    ]
+  },
+  "priority": 10
+}

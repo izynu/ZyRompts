@@ -1,0 +1,19 @@
+{
+  "id": "subagent-routing",
+  "event": "SubagentStart",
+  "description": "Keep research and planning subagents lean: breadth over depth, conclusions not raw dumps, and an explicit note that the subagent cannot see the parent conversation.",
+  "criteria": {
+    "match_target": "agent_type",
+    "match": ["Explore", "Plan", "researcher", "planner", "general-purpose"]
+  },
+  "action": {
+    "type": "inject_context",
+    "text": [
+      "If this is a broad read-only research or planning pass: favor breadth over depth, read excerpts rather than whole files, and return conclusions with file:line citations rather than raw dumps.",
+      "You cannot see the parent conversation. Work only from the context you were given; state explicitly what was missing.",
+      "If this agent is doing focused implementation work, ignore this guidance."
+    ]
+  },
+  "bypass": "none",
+  "priority": 0
+}

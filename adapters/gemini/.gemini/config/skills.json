@@ -1,0 +1,56 @@
+{
+  "version": "0.1.0",
+  "entries": [
+    {
+      "path": ".gemini/skills/zy-archive"
+    },
+    {
+      "path": ".gemini/skills/zy-brainstorm"
+    },
+    {
+      "path": ".gemini/skills/zy-clarify"
+    },
+    {
+      "path": ".gemini/skills/zy-code-review"
+    },
+    {
+      "path": ".gemini/skills/zy-critique"
+    },
+    {
+      "path": ".gemini/skills/zy-cycle"
+    },
+    {
+      "path": ".gemini/skills/zy-debugging"
+    },
+    {
+      "path": ".gemini/skills/zy-execute"
+    },
+    {
+      "path": ".gemini/skills/zy-plan"
+    },
+    {
+      "path": ".gemini/skills/zy-prompt-engineering"
+    },
+    {
+      "path": ".gemini/skills/zy-prompt-improver"
+    },
+    {
+      "path": ".gemini/skills/zy-refactor"
+    },
+    {
+      "path": ".gemini/skills/zy-research"
+    },
+    {
+      "path": ".gemini/skills/zy-security-review"
+    },
+    {
+      "path": ".gemini/skills/zy-specify"
+    },
+    {
+      "path": ".gemini/skills/zy-tdd"
+    },
+    {
+      "path": ".gemini/skills/zy-verify"
+    }
+  ]
+}

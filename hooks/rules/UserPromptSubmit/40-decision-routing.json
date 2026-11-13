@@ -1,0 +1,18 @@
+{
+  "id": "decision-routing",
+  "event": "UserPromptSubmit",
+  "description": "Route genuine user-owned decisions through an explicit question with concrete options, and default on reversible ones. The default-and-proceed clause is also the self-cancel.",
+  "criteria": {
+    "match": ["\\b(which|should (i|we)|prefer|choose|choice|decide|decision|options?|recommend\\w*|better|versus|vs|trade-?offs?|pick)\\b"],
+    "flags": ["ignorecase"],
+    "non_slash": true
+  },
+  "action": {
+    "type": "inject_context",
+    "text": [
+      "If carrying this out means making a decision that is genuinely the user's (a real fork, a real tradeoff, a missing requirement): ask with the AskUserQuestion tool, giving 2-4 concrete options and their tradeoffs.",
+      "For minor or reversible choices, pick a sensible default, say what you picked, and proceed. Do not interrupt for decisions that do not need the user."
+    ]
+  },
+  "priority": 40
+}

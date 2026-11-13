@@ -1,0 +1,18 @@
+{
+  "id": "scope-discipline",
+  "event": "UserPromptSubmit",
+  "description": "On requests that look like a feature build, restate the boundary: deliver what was asked, do not add unrequested features, abstractions or refactors. Self-cancelling for small edits.",
+  "criteria": {
+    "match": ["\\b(implement|build|add|create|integrate|migrate|refactor|redesign|rewrite|feature)\\b"],
+    "flags": ["ignorecase"],
+    "non_slash": true
+  },
+  "action": {
+    "type": "inject_context",
+    "text": [
+      "If this is a build request: deliver exactly what was asked. Do not add features, abstractions, refactors or configuration the request did not name.",
+      "Anchor every change to a file path. If the request is small, ignore this guidance."
+    ]
+  },
+  "priority": 20
+}

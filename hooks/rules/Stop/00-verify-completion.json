@@ -1,0 +1,7 @@
+{
+  "id": "verify-completion",
+  "event": "Stop",
+  "description": "Audit completion claims before the turn ends. If the transcript claims work is done but shows no test output, command output, or file:line evidence, inject a check prompt. Silent for turns that make no completion claim.",
+  "handler": "verify_stop",
+  "priority": 0
+}

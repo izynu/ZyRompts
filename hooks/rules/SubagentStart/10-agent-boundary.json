@@ -1,0 +1,14 @@
+{
+  "id": "agent-boundary",
+  "event": "SubagentStart",
+  "description": "Every subagent gets the same boundary rule: no self-approval, no scope expansion, report unverified work as unverified.",
+  "action": {
+    "type": "inject_context",
+    "text": [
+      "Boundaries: do not approve your own output, do not expand scope beyond your task, and do not claim a result you did not verify.",
+      "If your task cannot be completed with the tools you have, say so and stop rather than improvising around the limit."
+    ]
+  },
+  "bypass": "none",
+  "priority": 10
+}

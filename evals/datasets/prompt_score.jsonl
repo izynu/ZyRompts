@@ -1,0 +1,18 @@
+# Prompt-score suite. Each line:
+#   id, input, expect{min_total, max_total, grade_in}
+# The contract: the score is attributable. A prompt that names a target scores
+# above one that does not; a prompt with an acceptance criterion scores above
+# one without. Absolute numbers are pinned loosely on purpose, so a re-weighting
+# does not fail the suite but a regression in the ordering does.
+{"id":"ps-001","input":"fix the bug","expect":{"max_total":25,"grade_in":["F"]}}
+{"id":"ps-002","input":"improve the code","expect":{"max_total":10,"grade_in":["F"]}}
+{"id":"ps-003","input":"make it faster","expect":{"max_total":10,"grade_in":["F"]}}
+{"id":"ps-004","input":"write a blog","expect":{"max_total":25,"grade_in":["F"]}}
+{"id":"ps-005","input":"add tests","expect":{"max_total":25,"grade_in":["F"]}}
+{"id":"ps-006","input":"fix TypeError in src/components/Map.tsx line 127","expect":{"min_total":45,"max_total":60,"grade_in":["C"]}}
+{"id":"ps-007","input":"In src/utils/date.py, make parse_date accept ISO-8601 with a timezone offset","expect":{"min_total":30,"max_total":45}}
+{"id":"ps-008","input":"Add a --verbose flag to scripts/build.py that prints each step. Acceptance: `scripts/build.py --verbose` prints one line per step.","expect":{"min_total":45,"grade_in":["C","B"]}}
+{"id":"ps-009","input":"Implement a rate limiter in src/api/limiter.py using Redis. Acceptance: 429 after 100 req/min. Output: unified diff. Do not modify other files.","expect":{"min_total":80,"grade_in":["A"]}}
+{"id":"ps-010","input":"Refactor src/payments/ into src/payments/{auth,capture,refund}.py. Acceptance: existing pytest suite passes unchanged. Output: the new files and the diff. Do not change any public function signature.","expect":{"min_total":80,"grade_in":["A"]}}
+{"id":"ps-011","input":"Add a retry with backoff to src/api/client.py. Acceptance: the new test passes and the existing suite is green. Output: a unified diff. Only touch src/api/client.py.","expect":{"min_total":70,"grade_in":["A","B"]}}
+{"id":"ps-012","input":"example: input 1 -> output 2","expect":{"min_total":10}}

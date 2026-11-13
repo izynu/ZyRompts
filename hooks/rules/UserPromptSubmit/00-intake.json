@@ -1,0 +1,7 @@
+{
+  "id": "intake",
+  "event": "UserPromptSubmit",
+  "description": "Flagship rule. Classifies the prompt (intent, complexity, domains, risk) and injects a compact brief that names the workflow to use. Owns its own */#/slash bypass logic inside the intake handler. Replaces a static evaluation wrapper: the model is told what the prompt is, not asked to re-derive it.",
+  "handler": "intake",
+  "priority": 0
+}

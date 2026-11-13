@@ -1,0 +1,29 @@
+# Classification suite. Each line is one case:
+#   id, input, expect{intent, complexity, workflow}
+# The contract these encode: cheap by default, but never cheap enough to be wrong.
+# A terse request with wide scope is terse, not trivial.
+{"id":"cls-001","input":"hi","expect":{"intent":"unknown","complexity":"trivial","workflow":"direct"}}
+{"id":"cls-002","input":"what is a monad","expect":{"intent":"explain","complexity":"trivial","workflow":"direct"}}
+{"id":"cls-003","input":"what does this regex do: ^a+b$","expect":{"intent":"explain","workflow":"direct"}}
+{"id":"cls-004","input":"explain how the auth middleware works","expect":{"intent":"explain","workflow":"direct"}}
+{"id":"cls-005","input":"why does the build fail on arm64","expect":{"intent":"question","workflow":["direct","light"]}}
+{"id":"cls-006","input":"fix the bug","expect":{"intent":"fix","complexity":"trivial","workflow":"light"}}
+{"id":"cls-007","input":"fix TypeError in src/components/Map.tsx line 127","expect":{"intent":"fix","workflow":"direct"}}
+{"id":"cls-008","input":"the login endpoint returns 500 when the email has a plus sign","expect":{"intent":"fix","workflow":["direct","light"]}}
+{"id":"cls-009","input":"implement a rate limiter for the API with Redis","expect":{"intent":"build","workflow":"light"}}
+{"id":"cls-010","input":"add a --verbose flag to scripts/build.py","expect":{"intent":"build","workflow":"direct"}}
+{"id":"cls-011","input":"build a CLI that converts markdown to pdf with themes","expect":{"intent":"build","workflow":["light","planned"]}}
+{"id":"cls-012","input":"refactor the payment module into separate services","expect":{"intent":"refactor","complexity":"moderate","workflow":"planned"}}
+{"id":"cls-013","input":"refactor src/payments into separate services","expect":{"intent":"refactor","workflow":"light"}}
+{"id":"cls-014","input":"rewrite the entire authentication layer across all services","expect":{"intent":"refactor","complexity":["moderate","large","epic"],"workflow":["planned","full"]}}
+{"id":"cls-015","input":"review this diff for bugs","expect":{"intent":"review","workflow":["direct","light"]}}
+{"id":"cls-016","input":"do a security review of the upload endpoint","expect":{"intent":"review","workflow":["light","planned"]}}
+{"id":"cls-017","input":"research the current state of WASM runtimes","expect":{"intent":"research","workflow":["direct","light"]}}
+{"id":"cls-018","input":"plan the migration of the database to postgres 16","expect":{"intent":"plan","complexity":"moderate","workflow":"planned"}}
+{"id":"cls-019","input":"plan and execute the move from REST to GraphQL across the entire codebase","expect":{"intent":"plan","complexity":["moderate","large","epic"],"workflow":["planned","full"]}}
+{"id":"cls-020","input":"improve this prompt: write me a blog post","expect":{"intent":"prompt-engineering","workflow":"light"}}
+{"id":"cls-021","input":"deploy the service to staging and check the logs","expect":{"intent":"ops","workflow":"light"}}
+{"id":"cls-022","input":"rotate the production credentials","expect":{"intent":"ops","workflow":["light","planned"]}}
+{"id":"cls-023","input":"add dark mode to the settings page","expect":{"intent":"build","workflow":["direct","light"]}}
+{"id":"cls-024","input":"migrate the monolith to microservices","expect":{"intent":"build","complexity":["large","epic"],"workflow":["planned","full"]}}
+{"id":"cls-025","input":"","expect":{"intent":"unknown","complexity":"trivial","workflow":"direct"}}
