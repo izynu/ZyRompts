@@ -218,7 +218,12 @@
             <button class="copy-btn" type="button" data-copy="redact-code">copy</button>
           </div>
           <pre class="term-body" id="redact-code"><code><span class="c-dim">$</span> zyrompts redact &lt; output.log
-{ "text": "...[REDACTED]...", "kinds": ["github_token"] }</code></pre>
+{
+  <span class="c-key">"text"</span>: "token: [REDACTED]\n",
+  <span class="c-key">"kinds"</span>: [
+    "github_token"
+  ]
+}</code></pre>
         </div>
         <p>
           The rule for agents: never paste a real credential into a report, a

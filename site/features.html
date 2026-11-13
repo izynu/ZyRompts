@@ -112,7 +112,7 @@
     { "dimension": "complexity", "value": "security-sensitive surface",
       "confidence": 0.6, "evidence": "cue 'payment'" },
     { "dimension": "complexity", "value": "terse but wide scope",
-      "confidence": 0.7, "evidence": "7 words, wide-scope cue retained" }
+      "confidence": 0.7, "evidence": "6 words, wide-scope cue retained" }
   ]
 }</code></pre>
         </div>
@@ -205,16 +205,18 @@
             <button class="copy-btn" type="button" data-copy="pol-code">copy</button>
           </div>
           <pre class="term-body" id="pol-code"><code><span class="c-dim">$</span> zyrompts policy "rm -rf /" --autonomy yolo
-<span class="c-bad">deny</span>  hard-deny:root-delete
-
-<span class="c-dim">$</span> zyrompts policy "git reset --hard" --autonomy yolo
-<span class="c-bad">deny</span>  hard-deny:history-rewrite
-
-<span class="c-dim">$</span> zyrompts policy Write '{"file_path":"/etc/passwd"}' --autonomy yolo
-<span class="c-bad">deny</span>  protected-path
+{
+  <span class="c-key">"decision"</span>: <span class="c-bad">"deny"</span>,
+  <span class="c-key">"reason"</span>: "hard denial 'root-delete': 'rm -rf /' is never allowed",
+  <span class="c-key">"rule"</span>: "hard-deny:root-delete"
+}
 
 <span class="c-dim">$</span> zyrompts policy "ls -la" --autonomy yolo
-<span class="c-ok">allow</span> readonly-command</code></pre>
+{
+  <span class="c-key">"decision"</span>: <span class="c-ok">"allow"</span>,
+  <span class="c-key">"reason"</span>: "read-only command",
+  <span class="c-key">"rule"</span>: "readonly-command"
+}</code></pre>
         </div>
         <p>
           Nine hard-deny rules, a protected-path table, workspace containment and
@@ -374,14 +376,22 @@
           </div>
           <pre class="term-body" id="score-code"><code><span class="c-dim">$</span> zyrompts score "fix the bug"
 {
-  <span class="c-key">"total"</span>: 20, <span class="c-key">"max_total"</span>: 100, <span class="c-key">"grade"</span>: "F",
+  <span class="c-key">"total"</span>: 20,
+  <span class="c-key">"max_total"</span>: 100,
+  <span class="c-key">"grade"</span>: "F",
+  <span class="c-key">"components"</span>: {
+    <span class="c-key">"task_clarity"</span>: 20, <span class="c-key">"target_context"</span>: 0, <span class="c-key">"output_format"</span>: 0,
+    <span class="c-key">"constraints"</span>: 0, <span class="c-key">"success_criteria"</span>: 0, <span class="c-key">"scope_boundaries"</span>: 0,
+    <span class="c-key">"examples"</span>: 0
+  },
   <span class="c-key">"missing"</span>: [
     "name the file, symbol, error, or source the task applies to",
     "specify the output format and length",
     "state what must and must not happen",
     "add a checkable success criterion (done when ...)",
     "bound the scope: which files or modules may change"
-  ]
+  ],
+  <span class="c-key">"not_applicable"</span>: []
 }</code></pre>
         </div>
         <p>
@@ -409,13 +419,35 @@
 Verdict: BLOCK
 Findings: 3 surviving, 0 refuted (3 CONFIRMED, 0 UNVERIFIED)
 
+## Chapter 1 missing Affected files
+Severity: medium
+Confidence: CONFIRMED
+
+'Chapter 1 - Middleware' does not state its affected files.
+
+Evidence: heading 'Chapter 1 - Middleware' has no 'Affected files' section
+
+Suggestion: Add a 'Affected files:' block naming the files and how success is proven.
+
+## Chapter 1 missing Verification
+Severity: medium
+Confidence: CONFIRMED
+
+'Chapter 1 - Middleware' does not state its verification.
+
+Evidence: heading 'Chapter 1 - Middleware' has no 'Verification' section
+
+Suggestion: Add a 'Verification:' block naming the files and how success is proven.
+
 ## Chapter 1 references a missing file
 Severity: high
 Confidence: CONFIRMED
 
 'Chapter 1 - Middleware' names src/middleware/rate.ts, which does not exist.
 
-Evidence: path 'src/middleware/rate.ts' not found in the working tree</code></pre>
+Evidence: path 'src/middleware/rate.ts' not found in the working tree
+
+Suggestion: Confirm the path or mark it as a file to be created.</code></pre>
         </div>
         <p>
           Structural headings such as Context, Rollback and Open questions are
