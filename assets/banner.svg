@@ -18,7 +18,7 @@
 
     <!-- flow line to classifier -->
     <line x1="260" y1="172" x2="316" y2="172" stroke="#25363a" stroke-width="1.5"/>
-    <circle class="dot" r="3" fill="#5ad8c2">
+    <circle class="dot" r="3" opacity="0" fill="#5ad8c2">
       <animateMotion dur="2.6s" repeatCount="indefinite" path="M260,172 L316,172"/>
       <animate attributeName="opacity" values="0;1;1;0" dur="2.6s" repeatCount="indefinite"/>
     </circle>
@@ -33,7 +33,7 @@
 
     <!-- tiers -->
     <line x1="496" y1="172" x2="552" y2="172" stroke="#25363a" stroke-width="1.5"/>
-    <circle class="dot" r="3" fill="#5ad8c2">
+    <circle class="dot" r="3" opacity="0" fill="#5ad8c2">
       <animateMotion dur="2.6s" begin="0.35s" repeatCount="indefinite" path="M496,172 L552,172"/>
       <animate attributeName="opacity" values="0;1;1;0" dur="2.6s" begin="0.35s" repeatCount="indefinite"/>
     </circle>
@@ -52,7 +52,7 @@
 
     <!-- policy -->
     <line x1="720" y1="172" x2="776" y2="172" stroke="#25363a" stroke-width="1.5"/>
-    <circle class="dot" r="3" fill="#6ecf94">
+    <circle class="dot" r="3" opacity="0" fill="#6ecf94">
       <animateMotion dur="2.6s" begin="0.7s" repeatCount="indefinite" path="M720,172 L776,172"/>
       <animate attributeName="opacity" values="0;1;1;0" dur="2.6s" begin="0.7s" repeatCount="indefinite"/>
     </circle>
@@ -66,7 +66,7 @@
 
     <!-- platforms -->
     <line x1="952" y1="172" x2="1008" y2="172" stroke="#25363a" stroke-width="1.5"/>
-    <circle class="dot" r="3" fill="#8aa3a8">
+    <circle class="dot" r="3" opacity="0" fill="#8aa3a8">
       <animateMotion dur="2.6s" begin="1.05s" repeatCount="indefinite" path="M952,172 L1008,172"/>
       <animate attributeName="opacity" values="0;1;1;0" dur="2.6s" begin="1.05s" repeatCount="indefinite"/>
     </circle>

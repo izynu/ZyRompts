@@ -7,8 +7,8 @@
 [Website](https://izynu.github.io/ZyRompts/) · [Docs](docs/architecture.md) · [Security](docs/security-model.md) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
 
 [![CI](https://github.com/izynu/ZyRompts/actions/workflows/ci.yml/badge.svg)](https://github.com/izynu/ZyRompts/actions/workflows/ci.yml)
-[![License: MIT](https://img.shields.io/badge/license-MIT-3fb950?style=flat-square)](LICENSE)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-58a6ff?style=flat-square)](core/pyproject.toml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-166f45?style=flat-square)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-0b6c60?style=flat-square)](core/pyproject.toml)
 
 </div>
 
