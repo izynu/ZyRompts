@@ -1,0 +1,577 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZyRompts Features</title>
+<meta name="description" content="Every capability in ZyRompts, the module that implements it, and the test or eval case that proves it fires.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="canonical" href="https://izynu.github.io/ZyRompts/features.html">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="14" fill="#0c1416"/>
+        <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+        <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+      </svg>
+      ZyRompts
+    </a>
+    <div class="header-end">
+      <nav class="site-nav" id="site-nav" data-nav aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a href="features.html" aria-current="page">Features</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="security.html">Security</a>
+        <a href="index.html#install">Install</a>
+        <a href="https://github.com/izynu/ZyRompts" class="nav-ext">GitHub</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+        <svg class="icon icon-sun" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M10 2.2v1.8M10 16v1.8M2.2 10H4M16 10h1.8M4.5 4.5l1.3 1.3M14.2 14.2l1.3 1.3M15.5 4.5l-1.3 1.3M5.8 14.2l-1.3 1.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon icon-moon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M15.4 12.4A6.4 6.4 0 0 1 7.6 4.6a6.4 6.4 0 1 0 7.8 7.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
+        <span class="bars" aria-hidden="true"></span>
+        Menu
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="crumbs"><a href="index.html">Overview</a><span>/</span>Features</p>
+      <h1>What is in the framework</h1>
+      <p class="lede">
+        Each capability below names the module that implements it and the number
+        of tests or eval cases that cover it. Counts come from the repository at
+        version 0.1.0 and are re-checked by <code>scripts/validate-repo.py</code>.
+      </p>
+      <div class="row">
+        <span class="chip">17 skills</span>
+        <span class="chip">13 agents</span>
+        <span class="chip">13 hook rules</span>
+        <span class="chip">13 CLI commands</span>
+        <span class="chip">82 eval cases</span>
+        <span class="chip">318 tests</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap doc-layout">
+    <nav class="toc glass" aria-label="On this page">
+      <span class="toc-label">On this page</span>
+      <a href="#classification">Classification</a>
+      <a href="#lifecycle">Workflow lifecycle</a>
+      <a href="#policy">Policy and permissions</a>
+      <a href="#hooks">Hook engine</a>
+      <a href="#skills">Skill library</a>
+      <a href="#agents">Agent roles</a>
+      <a href="#adapters">Platform adapters</a>
+      <a href="#prompts">Prompt engineering</a>
+      <a href="#review">Independent review</a>
+      <a href="#evals">Eval harness</a>
+      <a href="#state">State and telemetry</a>
+      <a href="#cli">Command line</a>
+    </nav>
+
+    <div class="doc-body">
+
+      <section class="doc-section" id="classification">
+        <h2>Classification</h2>
+        <p>
+          Every request is read before anything else happens. The classifier
+          returns an intent, a complexity band, a priority, an output shape, a
+          workflow tier, and the evidence behind each decision.
+        </p>
+        <div class="term">
+          <div class="term-bar">
+            <span class="term-title">zyrompts classify</span>
+            <button class="copy-btn" type="button" data-copy="cls-code">copy</button>
+          </div>
+          <pre class="term-body" id="cls-code"><code><span class="c-dim">$</span> zyrompts classify "refactor the payment module into services"
+{
+  <span class="c-key">"intent"</span>: "refactor",
+  <span class="c-key">"complexity"</span>: "moderate",
+  <span class="c-key">"workflow"</span>: "planned",
+  <span class="c-key">"flags"</span>: ["ambiguous"],
+  <span class="c-key">"ambiguities"</span>: ["no acceptance criteria stated for a non-trivial change"],
+  <span class="c-key">"signals"</span>: [
+    { "dimension": "complexity", "value": "security-sensitive surface",
+      "confidence": 0.6, "evidence": "cue 'payment'" },
+    { "dimension": "complexity", "value": "terse but wide scope",
+      "confidence": 0.7, "evidence": "7 words, wide-scope cue retained" }
+  ]
+}</code></pre>
+        </div>
+        <p>
+          Two rules exist because the first version of the classifier got them
+          wrong. A terse request with wide scope is terse, not trivial. A
+          code-changing request with no concrete target is underspecified, not a
+          one-line edit. Both are pinned by the classification suite.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>Classification suite, 25 cases, all passing</caption>
+            <thead><tr><th>Request</th><th>Intent</th><th>Complexity</th><th>Tier</th></tr></thead>
+            <tbody>
+              <tr><td><code>hi</code></td><td>unknown</td><td>trivial</td><td>DIRECT</td></tr>
+              <tr><td><code>fix TypeError in src/components/Map.tsx</code></td><td>fix</td><td>trivial</td><td>DIRECT</td></tr>
+              <tr><td><code>fix the bug</code></td><td>fix</td><td>trivial</td><td>LIGHT</td></tr>
+              <tr><td><code>refactor the payment module into services</code></td><td>refactor</td><td>moderate</td><td>PLANNED</td></tr>
+              <tr><td><code>migrate the monolith to microservices</code></td><td>build</td><td>large</td><td>FULL</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-section" id="lifecycle">
+        <h2>Workflow lifecycle</h2>
+        <p>
+          Thirteen phases, in order. Each has a gate, and a phase that fails its
+          gate blocks the workflow rather than letting it advance.
+        </p>
+        <pre class="code">INTAKE -> CLARIFY -> RESEARCH -> SPECIFY -> PLAN -> CRITIQUE -> APPROVE
+       -> IMPLEMENT -> REVIEW -> FIX -> VERIFY -> ARCHIVE -> DONE</pre>
+        <p>
+          Four tiers select a prefix of that chain. The tier is a floor, never a
+          ceiling: the classifier raises it on evidence and never lowers a
+          heavier one that the evidence supports.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>Phase count per tier, from workflow.py:TIER_PHASES</caption>
+            <thead><tr><th>Tier</th><th>Phases</th><th>Count</th><th>Selected when</th></tr></thead>
+            <tbody>
+              <tr><td><code>DIRECT</code></td><td>INTAKE, DONE</td><td class="num">2</td><td>trivial ask, or a question about code</td></tr>
+              <tr><td><code>LIGHT</code></td><td>INTAKE, IMPLEMENT, VERIFY, DONE</td><td class="num">4</td><td>small, contained change</td></tr>
+              <tr><td><code>PLANNED</code></td><td>adds CLARIFY, SPECIFY, PLAN, CRITIQUE, APPROVE, REVIEW</td><td class="num">10</td><td>moderate build or refactor</td></tr>
+              <tr><td><code>FULL</code></td><td>all thirteen</td><td class="num">13</td><td>large, wide, or architectural</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Revision loops are bounded. A critique that keeps failing cannot spin:
+          the loop stops at its cap and hands back to a human. A block records
+          <code>resume_at</code>, so the state file says exactly where work
+          stopped.
+        </p>
+        <div class="callout">
+          <b>Do not force every task through the full lifecycle.</b>
+          <span>A one-line question is answered in the DIRECT tier. Sending it
+          through planning, critique and approval would be slower and no safer.</span>
+        </div>
+      </section>
+
+      <section class="doc-section" id="policy">
+        <h2>Policy and permissions</h2>
+        <p>
+          The engine answers one question per tool call: given this tool, these
+          arguments and this autonomy level, is the call allowed, denied, or does
+          it need confirmation?
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>Autonomy levels. The hard-deny table fires in all four columns.</caption>
+            <thead><tr><th>Level</th><th>Read tools</th><th>Safe mutations</th><th>File writes</th></tr></thead>
+            <tbody>
+              <tr><td><code>read-only</code></td><td>allow</td><td>ask</td><td>deny</td></tr>
+              <tr><td><code>ask</code> (default)</td><td>allow</td><td>ask</td><td>ask</td></tr>
+              <tr><td><code>auto</code></td><td>allow</td><td>allow</td><td>allow</td></tr>
+              <tr><td><code>yolo</code></td><td>allow</td><td>allow</td><td>allow</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Read-only denies writes outright rather than asking, because asking
+          implies yes is a valid answer, and one approval would negotiate the
+          level away. Unknown tools are treated as mutating: fail closed.
+        </p>
+        <div class="term">
+          <div class="term-bar">
+            <span class="term-title">hard denials under yolo</span>
+            <button class="copy-btn" type="button" data-copy="pol-code">copy</button>
+          </div>
+          <pre class="term-body" id="pol-code"><code><span class="c-dim">$</span> zyrompts policy "rm -rf /" --autonomy yolo
+<span class="c-bad">deny</span>  hard-deny:root-delete
+
+<span class="c-dim">$</span> zyrompts policy "git reset --hard" --autonomy yolo
+<span class="c-bad">deny</span>  hard-deny:history-rewrite
+
+<span class="c-dim">$</span> zyrompts policy Write '{"file_path":"/etc/passwd"}' --autonomy yolo
+<span class="c-bad">deny</span>  protected-path
+
+<span class="c-dim">$</span> zyrompts policy "ls -la" --autonomy yolo
+<span class="c-ok">allow</span> readonly-command</code></pre>
+        </div>
+        <p>
+          Nine hard-deny rules, a protected-path table, workspace containment and
+          a secret redactor run before any autonomy band is consulted. The
+          <a href="security.html">security page</a> lists them in full.
+        </p>
+      </section>
+
+      <section class="doc-section" id="hooks">
+        <h2>Hook engine</h2>
+        <p>
+          One dispatcher serves every event. A capability is a JSON file, not a
+          script, so adding a nudge needs no Python change.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>13 rules across five events</caption>
+            <thead><tr><th>Event</th><th>Rules</th><th>What they do</th></tr></thead>
+            <tbody>
+              <tr><td><code>UserPromptSubmit</code></td><td>intake, research-first, scope-discipline, output-readability, decision-routing</td><td>classify the request, then nudge on evidence, scope, format and routing</td></tr>
+              <tr><td><code>PreToolUse</code></td><td>bash-safety, background-exec, write-scope</td><td>inject the policy verdict and the path boundary before a tool runs</td></tr>
+              <tr><td><code>SessionStart</code></td><td>decorum, memory-recall</td><td>load the behaviour policy and prior project state</td></tr>
+              <tr><td><code>Stop</code></td><td>verify-completion</td><td>check a completion claim against evidence in the transcript</td></tr>
+              <tr><td><code>SubagentStart</code></td><td>subagent-routing, agent-boundary</td><td>route work to a role and enforce the independence boundary</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          A rule is validated against a capability matrix before it runs. A bad
+          regex, an unknown event or a handler that is not on the allowlist is a
+          load-time skip with a note, never a crash. The dispatcher exits 0 on
+          every path, because a hook that crashes blocks the user's prompt.
+        </p>
+        <pre class="code">{
+  "id": "research-first",
+  "event": "UserPromptSubmit",
+  "priority": 10,
+  "criteria": { "match": ["\\b(best practice|state of the art)\\b"] },
+  "action": {
+    "type": "inject_context",
+    "text": ["Check the primary source before asserting. Cite the URL and date."]
+  }
+}</pre>
+      </section>
+
+      <section class="doc-section" id="skills">
+        <h2>Skill library</h2>
+        <p>
+          Seventeen canonical skills. Each carries purpose, activation
+          conditions, inputs and outputs, procedure, required tools, examples,
+          failure handling, evaluation cases, version and machine-readable
+          dependencies. <code>zyrompts validate</code> fails on an unknown
+          dependency or a cycle.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>skills/&lt;name&gt;/SKILL.md</caption>
+            <thead><tr><th>Skill</th><th>Use it when</th><th>Depends on</th></tr></thead>
+            <tbody>
+              <tr><td><code>prompt-improver</code></td><td>a request is underspecified and would need a correction round-trip</td><td>none</td></tr>
+              <tr><td><code>prompt-engineering</code></td><td>writing or adapting a prompt for a specific model family</td><td>none</td></tr>
+              <tr><td><code>brainstorm</code></td><td>a goal exists but no approach is decided</td><td>optional: clarify</td></tr>
+              <tr><td><code>clarify</code></td><td>a real fork, a contradiction, or a missing requirement</td><td>none</td></tr>
+              <tr><td><code>research</code></td><td>the answer depends on facts you do not have</td><td>none</td></tr>
+              <tr><td><code>specify</code></td><td>a non-trivial feature has no written definition of done</td><td>clarify</td></tr>
+              <tr><td><code>plan</code></td><td>before any non-trivial change</td><td>specify</td></tr>
+              <tr><td><code>critique</code></td><td>a plan exists and has not been attacked yet</td><td>plan</td></tr>
+              <tr><td><code>cycle</code></td><td>draft, critique and merge in one bounded pass</td><td>plan, critique</td></tr>
+              <tr><td><code>execute</code></td><td>a plan is approved</td><td>plan, critique</td></tr>
+              <tr><td><code>tdd</code></td><td>a test suite exists and the change has observable behavior</td><td>execute</td></tr>
+              <tr><td><code>debugging</code></td><td>something fails and the cause is not known</td><td>none</td></tr>
+              <tr><td><code>refactor</code></td><td>behavior must stay identical while structure changes</td><td>optional: tdd</td></tr>
+              <tr><td><code>code-review</code></td><td>a diff needs an independent read</td><td>execute</td></tr>
+              <tr><td><code>security-review</code></td><td>code handles untrusted input, auth, secrets, files or the network</td><td>code-review</td></tr>
+              <tr><td><code>verify</code></td><td>before claiming a change works</td><td>execute, code-review</td></tr>
+              <tr><td><code>archive</code></td><td>work ends, pauses, or is handed over</td><td>verify</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-section" id="agents">
+        <h2>Agent roles</h2>
+        <p>
+          Thirteen roles declared as data: capability tier, tools, whether the
+          role is read-only, its attempt cap, what it produces, and whose output
+          it may review. The orchestrator uses that data to schedule work.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>agents.py:REGISTRY</caption>
+            <thead><tr><th>Role</th><th>Tier</th><th>Writes</th><th>May review</th><th>Produces</th></tr></thead>
+            <tbody>
+              <tr><td><code>researcher</code></td><td>fast</td><td>no</td><td>-</td><td>research report with sources</td></tr>
+              <tr><td><code>prompt-engineer</code></td><td>standard</td><td>no</td><td>-</td><td>improved prompt with before/after score</td></tr>
+              <tr><td><code>planner</code></td><td>frontier</td><td>no</td><td>-</td><td>plan.md</td></tr>
+              <tr><td><code>architect</code></td><td>frontier</td><td>no</td><td>-</td><td>decision with alternatives</td></tr>
+              <tr><td><code>critic</code></td><td>frontier</td><td>no</td><td>planner, architect</td><td>critique with graded findings</td></tr>
+              <tr><td><code>developer</code></td><td>standard</td><td>yes</td><td>-</td><td>code changes with test evidence</td></tr>
+              <tr><td><code>debugger</code></td><td>standard</td><td>no</td><td>-</td><td>root cause with reproduction</td></tr>
+              <tr><td><code>tester</code></td><td>standard</td><td>yes</td><td>developer</td><td>test suite and run output</td></tr>
+              <tr><td><code>code-reviewer</code></td><td>frontier</td><td>no</td><td>developer, tester</td><td>findings ranked by severity</td></tr>
+              <tr><td><code>security-reviewer</code></td><td>frontier</td><td>no</td><td>developer</td><td>security findings with severity and fix</td></tr>
+              <tr><td><code>documentation</code></td><td>fast</td><td>yes</td><td>-</td><td>docs update</td></tr>
+              <tr><td><code>performance</code></td><td>standard</td><td>no</td><td>-</td><td>measurement and proposal</td></tr>
+              <tr><td><code>verifier</code></td><td>frontier</td><td>no</td><td>developer, tester, code-reviewer</td><td>acceptance matrix with evidence</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The registry routes by capability class, not by product name. A role
+          asks for a frontier, standard or fast model; which model fills that slot
+          is the operator's decision.
+        </p>
+      </section>
+
+      <section class="doc-section" id="adapters">
+        <h2>Platform adapters</h2>
+        <p>
+          An adapter is a pure function from the skill list to a set of files. No
+          clock, no network, no environment. That is what makes
+          <code>generate-adapters.py --check</code> meaningful in CI.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>Generated output, 74 files across five platforms</caption>
+            <thead><tr><th>Platform</th><th>Per-skill file</th><th>Manifest</th><th>Hook engine</th></tr></thead>
+            <tbody>
+              <tr><td>Claude Code</td><td><code>skills/&lt;name&gt;/SKILL.md</code></td><td>plugin.json, hooks.json</td><td>yes</td></tr>
+              <tr><td>Gemini</td><td><code>.gemini/skills/zy-&lt;slug&gt;/SKILL.md</code></td><td>skills.json</td><td>no</td></tr>
+              <tr><td>Copilot</td><td><code>.github/skills/zy-&lt;slug&gt;/SKILL.md</code></td><td>plugin.json</td><td>no</td></tr>
+              <tr><td>Codex</td><td><code>AGENTS.md</code> index</td><td>-</td><td>no</td></tr>
+              <tr><td>OpenCode</td><td><code>.opencode/agent/zy-&lt;slug&gt;.md</code></td><td>-</td><td>no</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          The <code>zy-</code> prefix applies where a platform namespace is flat
+          and a bare <code>execute</code> would collide with a built-in skill.
+          The <a href="architecture.html#adapters">architecture page</a> covers
+          what each renderer drops and why.
+        </p>
+      </section>
+
+      <section class="doc-section" id="prompts">
+        <h2>Prompt engineering</h2>
+        <p>
+          A deterministic score from 0 to 100, attributed point by point across
+          seven components: task clarity, target context, output format,
+          constraints, success criteria, scope boundaries and examples. The
+          rewrite uses the score to prove it improved the prompt.
+        </p>
+        <div class="term">
+          <div class="term-bar">
+            <span class="term-title">zyrompts score</span>
+            <button class="copy-btn" type="button" data-copy="score-code">copy</button>
+          </div>
+          <pre class="term-body" id="score-code"><code><span class="c-dim">$</span> zyrompts score "fix the bug"
+{
+  <span class="c-key">"total"</span>: 20, <span class="c-key">"max_total"</span>: 100, <span class="c-key">"grade"</span>: "F",
+  <span class="c-key">"missing"</span>: [
+    "name the file, symbol, error, or source the task applies to",
+    "specify the output format and length",
+    "state what must and must not happen",
+    "add a checkable success criterion (done when ...)",
+    "bound the scope: which files or modules may change"
+  ]
+}</code></pre>
+        </div>
+        <p>
+          The frameworks (RTF, CO-STAR, RISEN, CRISPE, few-shot) are data, not
+          prose, so the right one can be selected from the classification rather
+          than from taste. Model guidance routes on capability class, so it does
+          not rot when a version number changes.
+        </p>
+      </section>
+
+      <section class="doc-section" id="review">
+        <h2>Independent review</h2>
+        <p>
+          Deterministic critique of plans, specifications and diffs. A finding is
+          reported only after a refutation attempt, and carries a confidence
+          grade: CONFIRMED when the check proves it, UNVERIFIED when it does not.
+        </p>
+        <div class="term">
+          <div class="term-bar">
+            <span class="term-title">zyrompts plan-critique plan.md --check-paths</span>
+            <button class="copy-btn" type="button" data-copy="crit-code">copy</button>
+          </div>
+          <pre class="term-body" id="crit-code"><code># Review: plan
+
+Verdict: BLOCK
+Findings: 3 surviving, 0 refuted (3 CONFIRMED, 0 UNVERIFIED)
+
+## Chapter 1 references a missing file
+Severity: high
+Confidence: CONFIRMED
+
+'Chapter 1 - Middleware' names src/middleware/rate.ts, which does not exist.
+
+Evidence: path 'src/middleware/rate.ts' not found in the working tree</code></pre>
+        </div>
+        <p>
+          Structural headings such as Context, Rollback and Open questions are
+          not graded as chapters. That distinction is a real defect the templates
+          found when the plan template failed its own critique.
+        </p>
+      </section>
+
+      <section class="doc-section" id="evals">
+        <h2>Eval harness</h2>
+        <p>
+          Four suites, 82 labelled cases. Each case states the intended behavior,
+          so a change that helps one suite and hurts another shows up as a number
+          instead of an argument.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>zyrompts eval</caption>
+            <thead><tr><th>Suite</th><th>Cases</th><th>Measures</th></tr></thead>
+            <tbody>
+              <tr><td><code>classification</code></td><td class="num">25</td><td>intent, complexity and tier against labelled requests</td></tr>
+              <tr><td><code>injection</code></td><td class="num">18</td><td>instruction-like text detection and the resulting tier drop</td></tr>
+              <tr><td><code>policy</code></td><td class="num">27</td><td>decision and rule id for commands, paths and autonomy levels</td></tr>
+              <tr><td><code>prompt_score</code></td><td class="num">12</td><td>score bands and the components each prompt is missing</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          One failing case does not stop the suite. Datasets accept
+          <code>#</code> comments, so a case can explain why it exists next to
+          the expectation.
+        </p>
+      </section>
+
+      <section class="doc-section" id="state">
+        <h2>State and telemetry</h2>
+        <p>
+          Project state is one JSON document under
+          <code>.zyrompts/state/project.json</code>, written atomically with a
+          temporary file and a rename, so a crash mid-write cannot corrupt the
+          only copy. Every mutation appends to an event log, which makes history
+          auditable after the fact.
+        </p>
+        <p>
+          The state file carries a schema version. Loading a newer version raises
+          rather than silently dropping fields the running code does not
+          understand.
+        </p>
+        <p>
+          Telemetry records cost, duration and tool calls as JSONL. It is local
+          only: nothing phones home, and a crashed run still leaves a usable log.
+        </p>
+      </section>
+
+      <section class="doc-section" id="cli">
+        <h2>Command line</h2>
+        <p>
+          Thirteen commands. Each is scriptable without a model, and each sets an
+          exit code, so any of them can be a CI gate.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>zyrompts --help</caption>
+            <thead><tr><th>Command</th><th>What it does</th><th>Exit code</th></tr></thead>
+            <tbody>
+              <tr><td><code>classify</code></td><td>intent, complexity, tier and signals for a prompt</td><td>0</td></tr>
+              <tr><td><code>score</code></td><td>prompt quality 0-100 with missing components</td><td>0</td></tr>
+              <tr><td><code>improve</code></td><td>rewrite a prompt; gaps become questions</td><td>0</td></tr>
+              <tr><td><code>policy</code></td><td>evaluate a tool call at a given autonomy</td><td>1 on deny</td></tr>
+              <tr><td><code>plan-critique</code></td><td>deterministic critique of a plan file</td><td>1 on block</td></tr>
+              <tr><td><code>diff-review</code></td><td>deterministic critique of a diff</td><td>1 on block</td></tr>
+              <tr><td><code>adapters</code></td><td>generate or check the five platform trees</td><td>1 on drift</td></tr>
+              <tr><td><code>validate</code></td><td>rules, skills, dependencies, manifests</td><td>1 on problems</td></tr>
+              <tr><td><code>eval</code></td><td>run the four eval suites</td><td>1 on failure</td></tr>
+              <tr><td><code>health</code></td><td>environment and rule health as JSON</td><td>1 if unhealthy</td></tr>
+              <tr><td><code>decorum</code></td><td>print the policy, or check a reply against it</td><td>1 on problems</td></tr>
+              <tr><td><code>models</code></td><td>prompting guidance for a model family</td><td>0</td></tr>
+              <tr><td><code>redact</code></td><td>strip credentials from text or stdin</td><td>0</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Run with no subcommand for a health check. Full usage is in the
+          <a href="https://github.com/izynu/ZyRompts#use">README</a>.
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="wrap section">
+    <div class="cta glass">
+      <div>
+        <h2>See how the layers fit</h2>
+        <p>The architecture page maps every module to its invariant and shows the data flow end to end.</p>
+      </div>
+      <div class="row">
+        <a class="btn btn-primary" href="architecture.html">Architecture</a>
+        <a class="btn btn-ghost" href="security.html">Security model</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="index.html">
+          <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#0c1416"/>
+            <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+            <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+          </svg>
+          ZyRompts
+        </a>
+        <p>Deterministic workflow controls for AI coding agents. MIT licensed, no dependencies.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="security.html">Security model</a></li>
+          <li><a href="index.html#install">Install</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/izynu/ZyRompts">GitHub</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CHANGELOG.md">Changelog</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CONTRIBUTING.md">Contributing</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/SECURITY.md">Report a vulnerability</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/LICENSE">License</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>v0.1.0 &middot; MIT</span>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="https://github.com/izynu/ZyRompts">github.com/izynu/ZyRompts</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>

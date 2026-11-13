@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZyRompts Privacy Policy</title>
+<meta name="description" content="What this website collects, which is nothing, and what the ZyRompts software does with your data on your own machine.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="canonical" href="https://izynu.github.io/ZyRompts/privacy.html">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="14" fill="#0c1416"/>
+        <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+        <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+      </svg>
+      ZyRompts
+    </a>
+    <div class="header-end">
+      <nav class="site-nav" id="site-nav" data-nav aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a href="features.html">Features</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="security.html">Security</a>
+        <a href="index.html#install">Install</a>
+        <a href="https://github.com/izynu/ZyRompts" class="nav-ext">GitHub</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+        <svg class="icon icon-sun" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M10 2.2v1.8M10 16v1.8M2.2 10H4M16 10h1.8M4.5 4.5l1.3 1.3M14.2 14.2l1.3 1.3M15.5 4.5l-1.3 1.3M5.8 14.2l-1.3 1.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon icon-moon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M15.4 12.4A6.4 6.4 0 0 1 7.6 4.6a6.4 6.4 0 1 0 7.8 7.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
+        <span class="bars" aria-hidden="true"></span>
+        Menu
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="crumbs"><a href="index.html">Overview</a><span>/</span>Privacy</p>
+      <h1>Privacy policy</h1>
+      <p class="lede">
+        This page covers two things that are often confused: the website you are
+        reading, and the software you install. They behave differently, and both
+        are described here.
+      </p>
+      <p class="muted fs-sm">Last updated 13 November 2026.</p>
+    </div>
+  </div>
+
+  <div class="wrap wrap-narrow">
+    <div class="doc-body prose pb-section">
+
+      <h2>The short version</h2>
+      <p>
+        The website sets no cookies, runs no analytics, and loads no third-party
+        scripts. The software makes no network requests of its own. Neither one
+        has a server that receives your data, because neither one has a server at
+        all.
+      </p>
+
+      <h2>This website</h2>
+      <h3>What is collected</h3>
+      <p>
+        Nothing. The site is static files served by GitHub Pages. It contains no
+        analytics, no tracking pixels, no advertising, no social widgets and no
+        third-party scripts. Fonts are served from this site, not from a font
+        CDN, so your browser makes no request to a third party to render a page
+        here.
+      </p>
+
+      <h3>Hosting</h3>
+      <p>
+        The site is hosted on GitHub Pages. GitHub receives standard web server
+        data when it serves any page, including IP addresses, browser user agent
+        strings and request timestamps, and it may set its own cookies at the
+        <code>github.io</code> domain. That processing is described in the
+        <a href="https://docs.github.com/en/site-policy/privacy-policies/github-general-privacy-statement">GitHub Privacy Statement</a>
+        and is outside this project's control.
+      </p>
+
+      <h3>Storage in your browser</h3>
+      <p>
+        The site stores one preference in your browser's local storage: the theme
+        you pick if you use the theme control. Its key is
+        <code>zyrompts-theme</code> and its value is either
+        <code>light</code> or <code>dark</code>. It never leaves your browser,
+        it is never sent to anyone, and you can delete it by clearing site data.
+        If storage is unavailable, which happens in some private browsing modes,
+        the site simply follows your system theme.
+      </p>
+
+      <h3>Links to other sites</h3>
+      <p>
+        Pages here link to GitHub. Following a link takes you to a site governed
+        by its own privacy policy. This site does not embed content from other
+        sites and does not use link-tracking redirects.
+      </p>
+
+      <h2>The software</h2>
+      <h3>No network calls</h3>
+      <p>
+        The Python package in <code>core/</code> has no third-party
+        dependencies and makes no outbound network requests. It reads and writes
+        files in the directory you run it in. It does not contact the maintainers
+        and contains no telemetry endpoint.
+      </p>
+
+      <h3>What it writes to disk</h3>
+      <ul>
+        <li>
+          <code>.zyrompts/state/project.json</code> and
+          <code>.zyrompts/state/events.jsonl</code>, holding workflow state and
+          an event log for the project you run it against.
+        </li>
+        <li>
+          Telemetry records for cost and duration, stored locally in the same
+          project directory. Nothing is transmitted anywhere.
+        </li>
+      </ul>
+      <p>
+        Both are plain files you can read, edit or delete. Removing the
+        <code>.zyrompts</code> directory resets the project state.
+      </p>
+
+      <h3>Credentials in your input</h3>
+      <p>
+        If you pass text containing a credential to a command such as
+        <code>zyrompts redact</code>, the tool replaces the credential with a
+        placeholder and reports only the kind of credential it found. The
+        original value is not written to the state files by that command.
+      </p>
+      <p>
+        This is a safety feature, not a guarantee. Do not pass credentials to any
+        tool, this one included, unless you have decided that is acceptable.
+      </p>
+
+      <h3>When you use it inside an AI agent</h3>
+      <p>
+        ZyRompts runs before and around a coding agent, but the agent itself is
+        separate software with its own data handling. When you wire the hook
+        dispatcher into Claude Code or another tool, the conversation, the file
+        contents the agent reads and the tool output it receives are handled
+        under that product's terms and privacy policy, not this one. Read the
+        policy of the agent you are running.
+      </p>
+
+      <h2>Children</h2>
+      <p>
+        This project is developer tooling. It is not directed at children and
+        collects no personal information from anyone.
+      </p>
+
+      <h2>Changes to this policy</h2>
+      <p>
+        If this policy changes, the date at the top of the page changes and the
+        edit appears in the repository history at
+        <a href="https://github.com/izynu/ZyRompts/commits/main/site/privacy.html">site/privacy.html</a>.
+        Because the project is open source, every version of this page remains
+        readable in that history.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about this policy go to
+        <a href="https://github.com/izynu/ZyRompts/issues">the issue tracker</a>.
+        For a security concern, follow
+        <a href="security.html#report">the reporting process</a> instead of
+        opening a public issue.
+      </p>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="index.html">
+          <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#0c1416"/>
+            <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+            <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+          </svg>
+          ZyRompts
+        </a>
+        <p>Deterministic workflow controls for AI coding agents. MIT licensed, no dependencies.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="security.html">Security model</a></li>
+          <li><a href="index.html#install">Install</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/izynu/ZyRompts">GitHub</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CHANGELOG.md">Changelog</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CONTRIBUTING.md">Contributing</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/SECURITY.md">Report a vulnerability</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/LICENSE">License</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>v0.1.0 &middot; MIT</span>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="https://github.com/izynu/ZyRompts">github.com/izynu/ZyRompts</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>

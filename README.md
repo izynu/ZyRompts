@@ -1,4 +1,16 @@
-# ZyRompts
+<div align="center">
+
+<img src="assets/banner.svg" alt="ZyRompts: a request is classified into a workflow tier, checked against policy, and rendered to five agent platforms" width="100%">
+
+**Deterministic workflow controls for AI coding agents**
+
+[Website](https://izynu.github.io/ZyRompts/) · [Docs](docs/architecture.md) · [Security](docs/security-model.md) · [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md)
+
+[![CI](https://github.com/izynu/ZyRompts/actions/workflows/ci.yml/badge.svg)](https://github.com/izynu/ZyRompts/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/license-MIT-3fb950?style=flat-square)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-58a6ff?style=flat-square)](core/pyproject.toml)
+
+</div>
 
 A modular, multi-agent workflow framework for AI coding agents. One canonical
 definition of how an agent should work, rendered into Claude Code, Gemini,
@@ -32,7 +44,7 @@ workflow tier. Cheap by default, never cheap enough to be wrong:
 "fix TypeError in src/components/Map.tsx"   -> fix     / trivial  / DIRECT
 "fix the bug"                               -> fix     / trivial  / LIGHT
 "refactor the payment module into services" -> refactor/ moderate / PLANNED
-"migrate the monolith to microservices"     -> build   / large    / PLANNED
+"migrate the monolith to microservices"     -> build   / large    / FULL
 ```
 
 A terse request with wide scope is terse, not trivial. A code-changing request

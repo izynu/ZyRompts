@@ -32,7 +32,7 @@ The framework's attack surface is specific, so the list is explicit:
 - A write that escapes the workspace root, or reaches a protected path.
 - A way for untrusted tool output or fetched content to escalate privilege past
   the injection floor.
-- A hook rule that can execute arbitrary code through the rule file — for
+- A hook rule that can execute arbitrary code through the rule file: for
   example, a handler name that resolves to an import or `getattr` on a path.
 - A redaction bypass: a credential pattern that `redact_secrets` misses in a
   common format.

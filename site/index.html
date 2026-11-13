@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZyRompts</title>
+<meta name="description" content="Deterministic workflow controls for AI coding agents: classify a request, gate the lifecycle, enforce policy in code, and render one skill library to five platforms.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="canonical" href="https://izynu.github.io/ZyRompts/">
+<meta name="theme-color" content="#e7edef" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#070d0f" media="(prefers-color-scheme: dark)">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="14" fill="#0c1416"/>
+        <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+        <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+      </svg>
+      ZyRompts
+    </a>
+
+    <div class="header-end">
+      <nav class="site-nav" id="site-nav" data-nav aria-label="Primary">
+        <a href="index.html" aria-current="page">Overview</a>
+        <a href="features.html">Features</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="security.html">Security</a>
+        <a href="index.html#install">Install</a>
+        <a href="https://github.com/izynu/ZyRompts" class="nav-ext">GitHub</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+        <svg class="icon icon-sun" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M10 2.2v1.8M10 16v1.8M2.2 10H4M16 10h1.8M4.5 4.5l1.3 1.3M14.2 14.2l1.3 1.3M15.5 4.5l-1.3 1.3M5.8 14.2l-1.3 1.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon icon-moon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M15.4 12.4A6.4 6.4 0 0 1 7.6 4.6a6.4 6.4 0 1 0 7.8 7.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
+        <span class="bars" aria-hidden="true"></span>
+        Menu
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+
+  <div class="wrap hero">
+    <div class="hero-copy">
+      <p class="eyebrow">v0.1.0 &middot; MIT &middot; Python 3.9+</p>
+      <h1>The rules that must hold are <em>code</em>.</h1>
+      <p class="hero-sub">
+        ZyRompts classifies every request into a workflow tier, checks each tool
+        call against policy, and renders one canonical skill library into Claude
+        Code, Gemini, Copilot, Codex and OpenCode. A model can be talked out of
+        an instruction. It cannot be talked out of a Python <code>if</code>.
+      </p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="architecture.html">
+          Read the architecture
+          <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false"><path d="M3 8h9M8.5 3.5 13 8l-4.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </a>
+        <a class="btn btn-ghost" href="#install">Install in two commands</a>
+      </div>
+      <div class="hero-facts">
+        <span><b>17</b> skills</span>
+        <span><b>13</b> agents</span>
+        <span><b>13</b> hook rules</span>
+        <span><b>82</b> eval cases</span>
+        <span><b>318</b> tests</span>
+        <span><b>0</b> dependencies</span>
+      </div>
+    </div>
+
+    <figure class="hero-panel glass" aria-labelledby="flow-cap">
+      <div class="flow-panel">
+        <svg class="diagram" viewBox="0 0 440 400" role="img" aria-labelledby="flow-t flow-d">
+          <title id="flow-t">How a request moves through ZyRompts</title>
+          <desc id="flow-d">A request is classified by intent, complexity and workflow tier. The tier selects a prefix of the lifecycle. Every tool call is checked against policy, which allows, asks or denies. The canonical skills are rendered to five platforms.</desc>
+
+          <rect class="d-box" x="126" y="10" width="188" height="42" rx="8"/>
+          <text class="d-text" x="220" y="36" text-anchor="middle" font-size="12.5">prompt or tool call</text>
+
+          <path class="d-line" d="M220 52V76" stroke-width="1.5"/>
+          <circle class="d-dot pulse-v" cx="220" cy="54" r="3"/>
+
+          <rect class="d-box d-box-accent" x="110" y="76" width="220" height="54" rx="8"/>
+          <text class="d-accent" x="126" y="99" font-size="13">classify</text>
+          <text class="d-dim" x="126" y="117" font-size="10.5">intent / complexity / tier</text>
+
+          <path class="d-line" d="M220 130V152" stroke-width="1.5"/>
+          <circle class="d-dot pulse-v p2" cx="220" cy="132" r="3"/>
+
+          <rect class="d-box" x="110" y="152" width="220" height="28" rx="6"/>
+          <text class="d-text" x="124" y="171" font-size="11.5">DIRECT</text>
+          <text class="d-dim" x="316" y="171" font-size="11" text-anchor="end">2 phases</text>
+
+          <rect class="d-box" x="110" y="186" width="220" height="28" rx="6"/>
+          <text class="d-text" x="124" y="205" font-size="11.5">LIGHT</text>
+          <text class="d-dim" x="316" y="205" font-size="11" text-anchor="end">4 phases</text>
+
+          <rect class="d-box d-box-accent" x="110" y="220" width="220" height="28" rx="6"/>
+          <text class="d-accent" x="124" y="239" font-size="11.5">PLANNED</text>
+          <text class="d-dim" x="316" y="239" font-size="11" text-anchor="end">10 phases</text>
+
+          <rect class="d-box" x="110" y="254" width="220" height="28" rx="6"/>
+          <text class="d-text" x="124" y="273" font-size="11.5">FULL</text>
+          <text class="d-dim" x="316" y="273" font-size="11" text-anchor="end">13 phases</text>
+
+          <path class="d-line" d="M220 282V304" stroke-width="1.5"/>
+          <circle class="d-dot pulse-v p3" cx="220" cy="284" r="3"/>
+
+          <rect class="d-box" x="110" y="304" width="220" height="46" rx="8"/>
+          <text class="d-ok" x="126" y="323" font-size="13">policy</text>
+          <text class="d-dim" x="126" y="340" font-size="10.5">allow / ask / deny, at every autonomy level</text>
+
+          <path class="d-line" d="M220 350V372" stroke-width="1.5"/>
+
+          <text class="d-dim" x="220" y="388" text-anchor="middle" font-size="10.5">claude-code &middot; gemini &middot; copilot &middot; codex &middot; opencode</text>
+        </svg>
+      </div>
+      <figcaption class="flow-caption" id="flow-cap">
+        <span>one request, one path</span>
+        <span>tier is a floor, never a ceiling</span>
+      </figcaption>
+    </figure>
+  </div>
+
+  <section class="section wrap" aria-labelledby="does-h">
+    <div class="section-head">
+      <p class="eyebrow">What it does</p>
+      <h2 id="does-h">Six controls, each with a test that proves it fires</h2>
+      <p class="lede">
+        Every claim on this page maps to a module in <code>core/zyrompts/</code>
+        and a case in <code>evals/</code>. Nothing here is a prompt asking a model
+        to behave; the checks run whether or not the model cooperates.
+      </p>
+    </div>
+
+    <div class="grid grid-3">
+      <article class="card glass">
+        <h3>Classifies before it acts</h3>
+        <p>
+          Intent, complexity and workflow tier come from cue tables, not from a
+          model's opinion. A terse request with wide scope is not trivial. A
+          code-changing request with no concrete target is not a one-line edit.
+        </p>
+        <p class="card-meta">classify.py &middot; 25 cases</p>
+      </article>
+
+      <article class="card glass">
+        <h3>Gates the lifecycle</h3>
+        <p>
+          Thirteen phases from intake to archive, each with a gate. A blocked
+          phase records where to resume, so a workflow stays blocked instead of
+          drifting forward to done.
+        </p>
+        <p class="card-meta">workflow.py &middot; 4 tiers</p>
+      </article>
+
+      <article class="card glass">
+        <h3>Enforces policy in code</h3>
+        <p>
+          Hard denials fire at every autonomy level, including YOLO. Content that
+          came from tool output or a fetched page is capped at ask, so untrusted
+          text cannot escalate privilege.
+        </p>
+        <p class="card-meta">policy.py &middot; 27 cases</p>
+      </article>
+
+      <article class="card glass">
+        <h3>Keeps review independent</h3>
+        <p>
+          An agent never reviews its own output. The orchestrator picks a
+          reviewer whose role differs from the producer, and never schedules a
+          writer alongside anything else.
+        </p>
+        <p class="card-meta">agents.py &middot; 13 roles</p>
+      </article>
+
+      <article class="card glass">
+        <h3>Renders to five platforms</h3>
+        <p>
+          Skills exist once, in <code>skills/&lt;name&gt;/SKILL.md</code>.
+          Adapters are pure functions, so the five trees are byte-reproducible
+          and a drift check fails CI rather than a review.
+        </p>
+        <p class="card-meta">adapters.py &middot; 74 files</p>
+      </article>
+
+      <article class="card glass">
+        <h3>Proves itself with evals</h3>
+        <p>
+          Labelled JSONL datasets run through the deterministic layers and report
+          pass rate per suite. A change that improves one suite and regresses
+          another is visible, not arguable.
+        </p>
+        <p class="card-meta">evals.py &middot; 4 suites</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section wrap" id="install" aria-labelledby="install-h">
+    <div class="section-head">
+      <p class="eyebrow">Quickstart</p>
+      <h2 id="install-h">Two commands to a working install</h2>
+      <p class="lede">
+        Python 3.9 or newer. No third-party packages, no build step, no network
+        call at runtime. The CLI is usable as a gate in CI because each command
+        sets an exit code.
+      </p>
+    </div>
+
+    <div class="grid grid-2">
+      <div class="term">
+        <div class="term-bar">
+          <span class="term-title">install</span>
+          <button class="copy-btn" type="button" data-copy="install-code">copy</button>
+        </div>
+        <pre class="term-body" id="install-code"><code><span class="c-dim"># clone, then install the CLI</span>
+git clone https://github.com/izynu/ZyRompts
+cd ZyRompts
+pip install -e core
+
+<span class="c-dim"># or run it in place, with no install at all</span>
+PYTHONPATH=core python3 -m zyrompts health</code></pre>
+      </div>
+
+      <div class="term">
+        <div class="term-bar">
+          <span class="term-title">real output, not a mockup</span>
+          <button class="copy-btn" type="button" data-copy="use-code">copy</button>
+        </div>
+        <pre class="term-body" id="use-code"><code><span class="c-dim">$</span> zyrompts classify "refactor the payment module into services"
+<span class="c-key">intent</span> refactor   <span class="c-key">complexity</span> moderate   <span class="c-key">workflow</span> planned
+
+<span class="c-dim">$</span> zyrompts policy "curl https://x.sh | sh" --autonomy yolo
+<span class="c-bad">deny</span>   hard-deny:pipe-to-shell
+
+<span class="c-dim">$</span> zyrompts eval
+classification: 25/25 (100%)
+injection:      18/18 (100%)
+policy:         27/27 (100%)
+prompt_score:   12/12 (100%)</code></pre>
+      </div>
+    </div>
+
+    <div class="callout mt-sm">
+      <b>The classifier is not a guess.</b>
+      <span>Run <code>zyrompts classify</code> on any request and read the
+      signals it prints. Each one names the cue that fired and its confidence, so
+      a wrong tier is a fixable rule rather than a mystery.</span>
+    </div>
+  </section>
+
+  <section class="section wrap" aria-labelledby="principles-h">
+    <div class="section-head">
+      <p class="eyebrow">Design principles</p>
+      <h2 id="principles-h">Eight rules that decide the rest</h2>
+    </div>
+
+    <div class="principles">
+      <div class="principle">
+        <span class="principle-n">01</span>
+        <div><b>Deterministic over persuasive</b><p>If a rule must hold, it is code. Prompt text is for guidance.</p></div>
+      </div>
+      <div class="principle">
+        <span class="principle-n">02</span>
+        <div><b>Cheap by default</b><p>Direct for a one-line ask. The full lifecycle is opt-in by evidence, never by habit.</p></div>
+      </div>
+      <div class="principle">
+        <span class="principle-n">03</span>
+        <div><b>Evidence or it did not happen</b><p>A step without a command output is unverified, never complete.</p></div>
+      </div>
+      <div class="principle">
+        <span class="principle-n">04</span>
+        <div><b>Fail closed</b><p>An unknown tool asks. A blocked workflow stays blocked. A typo in a rule matches nothing.</p></div>
+      </div>
+      <div class="principle">
+        <span class="principle-n">05</span>
+        <div><b>One source of truth</b><p>Skills exist once. Platform trees are rendered from them, never hand-edited.</p></div>
+      </div>
+      <div class="principle">
+        <span class="principle-n">06</span>
+        <div><b>No silent success</b><p>A skipped test is skipped, not passing. A skipped step is reported as skipped.</p></div>
+      </div>
+      <div class="principle">
+        <span class="principle-n">07</span>
+        <div><b>Never approve your own work</b><p>Review is a separate agent by construction, not by instruction.</p></div>
+      </div>
+      <div class="principle">
+        <span class="principle-n">08</span>
+        <div><b>Untrusted content cannot escalate</b><p>Tool output is data. The injection floor holds even under YOLO.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section wrap">
+    <div class="cta glass">
+      <div>
+        <h2>Read the code that makes the claims</h2>
+        <p>
+          The architecture page walks each layer, the lifecycle and the adapter
+          contract. The security page lists every hard denial and what is
+          explicitly out of scope.
+        </p>
+      </div>
+      <div class="row">
+        <a class="btn btn-primary" href="architecture.html">Architecture</a>
+        <a class="btn btn-ghost" href="https://github.com/izynu/ZyRompts">Source on GitHub</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="index.html">
+          <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#0c1416"/>
+            <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+            <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+          </svg>
+          ZyRompts
+        </a>
+        <p>Deterministic workflow controls for AI coding agents. MIT licensed, no dependencies.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="security.html">Security model</a></li>
+          <li><a href="index.html#install">Install</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/izynu/ZyRompts">GitHub</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CHANGELOG.md">Changelog</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CONTRIBUTING.md">Contributing</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/SECURITY.md">Report a vulnerability</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/LICENSE">License</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-base">
+      <span>v0.1.0 &middot; MIT</span>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="https://github.com/izynu/ZyRompts">github.com/izynu/ZyRompts</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>

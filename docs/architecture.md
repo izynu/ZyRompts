@@ -32,12 +32,12 @@ behaviour that guides is data.**
 
 ### 1. Canonical source
 
-- `skills/<name>/SKILL.md` — the skill contracts. Frontmatter carries `name`,
+- `skills/<name>/SKILL.md`: the skill contracts. Frontmatter carries `name`,
   `description`, `allowed-tools`, `argument-hint`, `depends-on`,
   `optional-depends-on`. The body is the procedure.
-- `agents/<role>.md` — the agent contracts. Frontmatter mirrors
+- `agents/<role>.md`: the agent contracts. Frontmatter mirrors
   `agents.py:REGISTRY` exactly; a test fails if the two drift.
-- `hooks/rules/<Event>/*.json` — one rule per file.
+- `hooks/rules/<Event>/*.json`: one rule per file.
 
 Everything else is generated or derived.
 

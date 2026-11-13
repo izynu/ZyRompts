@@ -65,7 +65,7 @@ count, because "all tests pass" contains it and would then prove itself.
 ```bash
 $ zyrompts decorum --check "Done - all tests pass."
 - completion claim without visible evidence
-$ zyrompts decorum --check "Done. pytest: 317 passed."
+$ zyrompts decorum --check "Done. pytest: 318 passed."
 no decorum problems detected
 ```
 

@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZyRompts Terms</title>
+<meta name="description" content="The terms that govern use of the ZyRompts software and this website, alongside the MIT license that covers the code.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="canonical" href="https://izynu.github.io/ZyRompts/terms.html">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="14" fill="#0c1416"/>
+        <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+        <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+      </svg>
+      ZyRompts
+    </a>
+    <div class="header-end">
+      <nav class="site-nav" id="site-nav" data-nav aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a href="features.html">Features</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="security.html">Security</a>
+        <a href="index.html#install">Install</a>
+        <a href="https://github.com/izynu/ZyRompts" class="nav-ext">GitHub</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+        <svg class="icon icon-sun" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M10 2.2v1.8M10 16v1.8M2.2 10H4M16 10h1.8M4.5 4.5l1.3 1.3M14.2 14.2l1.3 1.3M15.5 4.5l-1.3 1.3M5.8 14.2l-1.3 1.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon icon-moon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M15.4 12.4A6.4 6.4 0 0 1 7.6 4.6a6.4 6.4 0 1 0 7.8 7.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
+        <span class="bars" aria-hidden="true"></span>
+        Menu
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="crumbs"><a href="index.html">Overview</a><span>/</span>Terms</p>
+      <h1>Terms and conditions</h1>
+      <p class="lede">
+        These terms cover the ZyRompts software and this website. The code is
+        also offered under the MIT license, which grants rights that these terms
+        do not restrict.
+      </p>
+      <p class="muted fs-sm">Last updated 13 November 2026.</p>
+    </div>
+  </div>
+
+  <div class="wrap wrap-narrow">
+    <div class="doc-body prose pb-section">
+
+      <h2>1. What these terms cover</h2>
+      <p>
+        These terms are an agreement between you and the ZyRompts maintainers
+        covering your use of the ZyRompts software, the documentation in the
+        repository, and this website. By installing the software or using the
+        site, you accept them.
+      </p>
+
+      <h2>2. The license, and how it relates to these terms</h2>
+      <p>
+        The source code is released under the MIT license, reproduced in full in
+        <a href="https://github.com/izynu/ZyRompts/blob/main/LICENSE">LICENSE</a>.
+        The MIT license grants you the right to use, copy, modify, merge, publish,
+        distribute, sublicense and sell copies of the software. Where these terms
+        and the MIT license conflict on your rights to the code, the MIT license
+        governs. These terms do not add restrictions on the code beyond what that
+        license allows.
+      </p>
+
+      <h2>3. Acceptable use</h2>
+      <p>
+        The software is developer tooling. You are responsible for how you use it
+        and for the actions of any agent you connect it to. In particular, you
+        agree not to use it to:
+      </p>
+      <ul>
+        <li>access a system, account or data set you are not authorized to access;</li>
+        <li>evade a security control on a system you do not own or operate;</li>
+        <li>damage, disrupt or overload a service you do not operate;</li>
+        <li>violate any law that applies to you.</li>
+      </ul>
+      <p>
+        The policy engine is a guardrail, not a permission slip. An allow decision
+        from <code>zyrompts policy</code> does not mean an action is lawful or
+        authorized, only that the configured rules did not match it.
+      </p>
+
+      <h2>4. No warranty</h2>
+      <p>
+        The software is provided as is, without warranty of any kind, express or
+        implied, including but not limited to the warranties of merchantability,
+        fitness for a particular purpose and noninfringement. It is version 0.1.0
+        and pre-1.0 software. Its behavior may change between releases.
+      </p>
+      <p>
+        In particular, no guarantee is made that a policy rule catches every
+        dangerous command, that the injection floor stops every prompt injection,
+        or that the software is free of defects. Read the
+        <a href="security.html#scope">scope section</a> of the security model,
+        which states the limits explicitly.
+      </p>
+
+      <h2>5. Limitation of liability</h2>
+      <p>
+        To the maximum extent permitted by law, the maintainers are not liable for
+        any direct, indirect, incidental, special, consequential or exemplary
+        damages arising from your use of the software or this site. This includes
+        loss of data, loss of work, loss of profit, and any action taken by an AI
+        agent you have connected the software to.
+      </p>
+      <p>
+        Where liability cannot be excluded, it is limited to the amount you paid
+        for the software, which is zero.
+      </p>
+
+      <h2>6. Your responsibilities</h2>
+      <ul>
+        <li>Keep backups of your work. The software can run commands and modify files.</li>
+        <li>Choose an autonomy level you understand. The default is <code>ask</code>.</li>
+        <li>Review a hook rule before installing it. Rules are data, and data can be malicious.</li>
+        <li>Read the terms and privacy policy of the AI agent you run it alongside.</li>
+      </ul>
+
+      <h2>7. Contributions</h2>
+      <p>
+        Contributions are governed by
+        <a href="https://github.com/izynu/ZyRompts/blob/main/CONTRIBUTING.md">CONTRIBUTING.md</a>
+        and the
+        <a href="https://github.com/izynu/ZyRompts/blob/main/CODE_OF_CONDUCT.md">Code of Conduct</a>.
+        By opening a pull request you confirm you have the right to submit the
+        work under the project's license.
+      </p>
+
+      <h2>8. This website</h2>
+      <p>
+        The site is provided for information. It may be unavailable, and content
+        may be out of date relative to the repository. The repository is the
+        authoritative source for what the software does. Third-party services the
+        site links to, including GitHub, are governed by their own terms.
+      </p>
+
+      <h2>9. Changes to these terms</h2>
+      <p>
+        These terms may change. The date at the top of the page changes when they
+        do, and the edit appears in the public repository history at
+        <a href="https://github.com/izynu/ZyRompts/commits/main/site/terms.html">site/terms.html</a>.
+        Continuing to use the software after a change means you accept the revised
+        terms.
+      </p>
+
+      <h2>10. Governing law</h2>
+      <p>
+        These terms are governed by the laws applicable at the maintainers'
+        principal place of business, without regard to conflict-of-law rules.
+        Nothing in this section limits any right you have under the mandatory law
+        of your own country of residence.
+      </p>
+
+      <h2>11. Contact</h2>
+      <p>
+        Questions about these terms go to
+        <a href="https://github.com/izynu/ZyRompts/issues">the issue tracker</a>.
+      </p>
+
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="index.html">
+          <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#0c1416"/>
+            <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+            <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+          </svg>
+          ZyRompts
+        </a>
+        <p>Deterministic workflow controls for AI coding agents. MIT licensed, no dependencies.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="security.html">Security model</a></li>
+          <li><a href="index.html#install">Install</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/izynu/ZyRompts">GitHub</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CHANGELOG.md">Changelog</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CONTRIBUTING.md">Contributing</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/SECURITY.md">Report a vulnerability</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/LICENSE">License</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>v0.1.0 &middot; MIT</span>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="https://github.com/izynu/ZyRompts">github.com/izynu/ZyRompts</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>

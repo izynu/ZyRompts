@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZyRompts Security Model</title>
+<meta name="description" content="The trust boundaries, nine hard denials, protected paths, the injection floor and the four autonomy levels that ZyRompts enforces in code.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="canonical" href="https://izynu.github.io/ZyRompts/security.html">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="14" fill="#0c1416"/>
+        <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+        <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+      </svg>
+      ZyRompts
+    </a>
+    <div class="header-end">
+      <nav class="site-nav" id="site-nav" data-nav aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a href="features.html">Features</a>
+        <a href="architecture.html">Architecture</a>
+        <a href="security.html" aria-current="page">Security</a>
+        <a href="index.html#install">Install</a>
+        <a href="https://github.com/izynu/ZyRompts" class="nav-ext">GitHub</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+        <svg class="icon icon-sun" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M10 2.2v1.8M10 16v1.8M2.2 10H4M16 10h1.8M4.5 4.5l1.3 1.3M14.2 14.2l1.3 1.3M15.5 4.5l-1.3 1.3M5.8 14.2l-1.3 1.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon icon-moon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M15.4 12.4A6.4 6.4 0 0 1 7.6 4.6a6.4 6.4 0 1 0 7.8 7.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
+        <span class="bars" aria-hidden="true"></span>
+        Menu
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="crumbs"><a href="index.html">Overview</a><span>/</span>Security</p>
+      <h1>The controls that matter are not prompts</h1>
+      <p class="lede">
+        A model can be talked out of an instruction. It cannot be talked out of a
+        branch in <code>policy.py</code>. This page states the trust boundaries,
+        every hard denial, and what is explicitly out of scope for a report.
+      </p>
+    </div>
+  </div>
+
+  <div class="wrap doc-layout">
+    <nav class="toc glass" aria-label="On this page">
+      <span class="toc-label">On this page</span>
+      <a href="#boundaries">Trust boundaries</a>
+      <a href="#denials">Hard denials</a>
+      <a href="#paths">Protected paths</a>
+      <a href="#floor">Injection floor</a>
+      <a href="#autonomy">Autonomy levels</a>
+      <a href="#secrets">Secret handling</a>
+      <a href="#hooks">Hook surface</a>
+      <a href="#scope">In and out of scope</a>
+      <a href="#report">Reporting</a>
+    </nav>
+
+    <div class="doc-body">
+
+      <section class="doc-section" id="boundaries">
+        <h2>Trust boundaries</h2>
+        <p>
+          Six boundaries. Each one has an untrusted side, and a named mechanism
+          that holds it.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>Boundary, untrusted side, enforcement</caption>
+            <thead><tr><th>Boundary</th><th>Untrusted side</th><th>Enforced by</th></tr></thead>
+            <tbody>
+              <tr><td>prompt to agent</td><td>the user's text, pasted content</td><td><code>classify.detect_injection</code>, intake rule</td></tr>
+              <tr><td>tool output to agent</td><td>file contents, web pages, command output</td><td>injection floor in <code>policy.evaluate</code></td></tr>
+              <tr><td>agent to filesystem</td><td>the agent's chosen path</td><td><code>check_path</code>, workspace containment</td></tr>
+              <tr><td>agent to shell</td><td>the agent's chosen command</td><td>the hard-deny table</td></tr>
+              <tr><td>rule file to dispatcher</td><td>a JSON file that may be edited</td><td><code>validate_rule</code>, allowlisted handlers</td></tr>
+              <tr><td>session to session</td><td>a previous transcript</td><td>redaction before logging</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-section" id="denials">
+        <h2>Hard denials</h2>
+        <p>
+          Matched against the command string before any autonomy band is
+          consulted. These fire at read-only, ask, auto and yolo alike.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>_HARD_DENY_COMMANDS, nine rules</caption>
+            <thead><tr><th>Rule</th><th>Catches</th></tr></thead>
+            <tbody>
+              <tr><td><code>root-delete</code></td><td><code>rm -rf /</code>, <code>rm -rf ~</code></td></tr>
+              <tr><td><code>disk-overwrite</code></td><td><code>dd of=/dev/sd*</code></td></tr>
+              <tr><td><code>mkfs</code></td><td><code>mkfs.* /dev/*</code></td></tr>
+              <tr><td><code>fork-bomb</code></td><td>the classic recursive shell bomb</td></tr>
+              <tr><td><code>history-rewrite</code></td><td>force-push to a protected branch, <code>git filter-*</code>, <code>git reset --hard</code>, <code>git clean -fdx</code></td></tr>
+              <tr><td><code>credential-exfil</code></td><td>curl or wget of <code>.ssh/id_*</code>, <code>.aws/credentials</code>, <code>.env</code></td></tr>
+              <tr><td><code>pipe-to-shell</code></td><td><code>curl ... | sh</code></td></tr>
+              <tr><td><code>permission-nuke</code></td><td><code>chmod -R 777 /</code></td></tr>
+              <tr><td><code>sudo-anything</code></td><td>any <code>sudo</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout">
+          <b>Why <code>git reset --hard</code> is denied rather than asked.</b>
+          <span>It discards uncommitted work with no recovery path. The right
+          answer is commit or stash first, not a confirmation dialog the user will
+          click through.</span>
+        </div>
+      </section>
+
+      <section class="doc-section" id="paths">
+        <h2>Protected paths</h2>
+        <p>
+          Writes are denied to a fixed list, and to any path containing a null
+          byte. With a workspace root set, a write outside it is denied as
+          <code>workspace-containment</code>.
+        </p>
+        <pre class="code">/etc/passwd          /etc/shadow        /etc/sudoers
+~/.ssh/*             ~/.aws/*           ~/.config/gh/*
+**/.git/config       /boot/*            /dev/sd*</pre>
+        <p>
+          The protected-path check runs before the autonomy band, so a protected
+          path is denied even under yolo. This is the difference between a policy
+          that a configuration change can weaken and one that a configuration
+          change cannot reach.
+        </p>
+      </section>
+
+      <section class="doc-section" id="floor">
+        <h2>The injection floor</h2>
+        <p>
+          Content that came from tool output or a fetched page is marked
+          untrusted. An untrusted call that would otherwise be allowed is capped
+          at ask, even under yolo.
+        </p>
+        <pre class="code">if untrusted and verdict.decision is Decision.ALLOW:
+    return Verdict(Decision.ASK,
+                   "untrusted content cannot escalate privilege",
+                   "injection-floor")</pre>
+        <p>
+          This is what makes "the web page told me to run this" a question rather
+          than an action. A write from untrusted content is capped the same way.
+        </p>
+        <h3>What is defended</h3>
+        <ul class="prose plain-list">
+          <li>Instruction-like text in the prompt is flagged, and the workflow drops to LIGHT so the agent reads before it acts.</li>
+          <li>Untrusted tool output cannot escalate privilege.</li>
+          <li>The security-review skill reports embedded instructions rather than following them.</li>
+        </ul>
+        <h3>What is not defended</h3>
+        <p>
+          The model's own judgement about ambiguous content. A classifier reduces
+          the attack surface; it does not eliminate the class. Treat the injection
+          floor as a seatbelt, not a guarantee.
+        </p>
+      </section>
+
+      <section class="doc-section" id="autonomy">
+        <h2>Autonomy levels</h2>
+        <p>
+          Four levels, set per session or per project. The hard-deny table and
+          the protected-path table sit above all four.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>policy.Autonomy</caption>
+            <thead><tr><th>Level</th><th>Read tools</th><th>Safe mutations</th><th>Destructive</th><th>File writes</th></tr></thead>
+            <tbody>
+              <tr><td><code>read-only</code></td><td>allow</td><td>ask</td><td>deny</td><td>deny</td></tr>
+              <tr><td><code>ask</code></td><td>allow</td><td>ask</td><td>deny</td><td>ask</td></tr>
+              <tr><td><code>auto</code></td><td>allow</td><td>allow</td><td>deny</td><td>allow</td></tr>
+              <tr><td><code>yolo</code></td><td>allow</td><td>allow</td><td>deny</td><td>allow</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Read-only denies writes outright rather than asking, because ask
+          implies yes is a valid answer, and one approval would negotiate the
+          level away. Unknown tools are treated as mutating.
+        </p>
+      </section>
+
+      <section class="doc-section" id="secrets">
+        <h2>Secret handling</h2>
+        <p>
+          The redactor recognises OpenAI, Anthropic, GitHub, AWS, Slack and JWT
+          credentials, PEM private key blocks, and generic
+          <code>password=</code> or <code>token:</code> assignments. It returns
+          both the redacted text and the kinds it found, so a caller can log that
+          a secret was present without logging the secret.
+        </p>
+        <div class="term">
+          <div class="term-bar">
+            <span class="term-title">zyrompts redact</span>
+            <button class="copy-btn" type="button" data-copy="redact-code">copy</button>
+          </div>
+          <pre class="term-body" id="redact-code"><code><span class="c-dim">$</span> zyrompts redact &lt; output.log
+{ "text": "...[REDACTED]...", "kinds": ["github_token"] }</code></pre>
+        </div>
+        <p>
+          The rule for agents: never paste a real credential into a report, a
+          commit or a prompt. Redact it, then name the location.
+        </p>
+      </section>
+
+      <section class="doc-section" id="hooks">
+        <h2>The hook dispatcher as an attack surface</h2>
+        <p>
+          A hook runs with the user's privileges on every prompt, so its input is
+          hostile by assumption. Four properties keep a rule file to data.
+        </p>
+        <div class="spec-list">
+          <div>
+            <span class="k">rules are data</span>
+            <span class="v">Validation checks the event against the capability matrix, the action type against the event's capability set, and that the rule has exactly one of <code>action</code> or <code>handler</code>.</span>
+          </div>
+          <div>
+            <span class="k">handlers are names</span>
+            <span class="v">Handlers and matchers are dictionaries of functions. A rule can only name one that already exists. No <code>importlib</code>, no <code>getattr</code> on a dotted path, no <code>eval</code>.</span>
+          </div>
+          <div>
+            <span class="k">regexes compile defensively</span>
+            <span class="v">A bad pattern is a validation error, not a traceback at prompt time.</span>
+          </div>
+          <div>
+            <span class="k">every path exits 0</span>
+            <span class="v">A crash would block the prompt. Silence does not.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="doc-section" id="scope">
+        <h2>In and out of scope</h2>
+        <p>The attack surface is specific, so the report scope is explicit.</p>
+        <div class="grid grid-2">
+          <div class="glass pad-md">
+            <h3 class="h-sm">In scope</h3>
+            <ul class="prose fs-sm">
+              <li>A tool call that bypasses a hard denial, for example a destructive command allowed under yolo.</li>
+              <li>A write that escapes the workspace root or reaches a protected path.</li>
+              <li>A way for untrusted tool output to escalate past the injection floor.</li>
+              <li>A rule that can execute arbitrary code through the rule file.</li>
+              <li>A redaction bypass in a common credential format.</li>
+              <li>A crash in the dispatcher that blocks a user's prompt.</li>
+            </ul>
+          </div>
+          <div class="glass pad-md">
+            <h3 class="h-sm">Out of scope</h3>
+            <ul class="prose fs-sm">
+              <li>A prompt that persuades a model to misbehave. That is the model's judgement.</li>
+              <li>Findings that require write access to the rules directory or the source. At that point the attacker is the operator.</li>
+              <li>Denial of service through deliberately enormous input.</li>
+              <li>Anything in <code>adapters/</code>, which is generated build output.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="doc-section" id="report">
+        <h2>Reporting a vulnerability</h2>
+        <p>
+          Report privately, not in a public issue. Use GitHub's private
+          vulnerability reporting on the repository, under Security then Report a
+          vulnerability.
+        </p>
+        <p>
+          Include the version, the configuration, the exact steps to reproduce
+          and the impact you believe it has. Do not include real credentials. If a
+          credential is part of the finding, say where it is and redact its value.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>Response targets</caption>
+            <thead><tr><th>Stage</th><th>Target</th></tr></thead>
+            <tbody>
+              <tr><td>Acknowledge</td><td>3 working days</td></tr>
+              <tr><td>Triage and severity</td><td>7 working days</td></tr>
+              <tr><td>Fix for a reachable issue in a default configuration</td><td>30 days</td></tr>
+              <tr><td>Public disclosure</td><td>coordinated, after the fix ships</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <h3>Operator checklist</h3>
+        <ul class="prose plain-list">
+          <li>Run with <code>--autonomy ask</code> or <code>read-only</code> unless you have a reason not to.</li>
+          <li>Set a workspace root so containment is enforced.</li>
+          <li>Run <code>zyrompts health</code> and <code>zyrompts validate</code> after any rule change.</li>
+          <li>Treat a rule file as code, and review it before installing it.</li>
+          <li>Keep the Python runtime patched. The core has no third-party dependencies, so the interpreter is the dependency.</li>
+        </ul>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="wrap section">
+    <div class="cta glass">
+      <div>
+        <h2>Read the source behind this page</h2>
+        <p><code>core/zyrompts/policy.py</code> is the whole enforcement layer, and the policy eval suite pins each rule.</p>
+      </div>
+      <div class="row">
+        <a class="btn btn-primary" href="https://github.com/izynu/ZyRompts/blob/main/core/zyrompts/policy.py">policy.py</a>
+        <a class="btn btn-ghost" href="https://github.com/izynu/ZyRompts/blob/main/SECURITY.md">SECURITY.md</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="index.html">
+          <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#0c1416"/>
+            <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+            <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+          </svg>
+          ZyRompts
+        </a>
+        <p>Deterministic workflow controls for AI coding agents. MIT licensed, no dependencies.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="security.html">Security model</a></li>
+          <li><a href="index.html#install">Install</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/izynu/ZyRompts">GitHub</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CHANGELOG.md">Changelog</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CONTRIBUTING.md">Contributing</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/SECURITY.md">Report a vulnerability</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/LICENSE">License</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>v0.1.0 &middot; MIT</span>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="https://github.com/izynu/ZyRompts">github.com/izynu/ZyRompts</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>

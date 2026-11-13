@@ -1,0 +1,49 @@
+name: Pages
+
+# Publishes the static site in site/ to GitHub Pages.
+#
+# The site is plain HTML, CSS, JS and WOFF2 files. Nothing is built, so this
+# workflow uploads the directory as it is committed. That keeps the deployed
+# artefact byte-identical to the source a reader can inspect in the repository.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy site
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      # Fails the job if a page links to a file that is not in the tree, so a
+      # broken link is caught here instead of by a reader.
+      - name: Check internal links and assets
+        run: python3 scripts/check-site.py site
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - id: deploy
+        uses: actions/deploy-pages@v4

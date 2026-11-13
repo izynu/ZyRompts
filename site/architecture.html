@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ZyRompts Architecture</title>
+<meta name="description" content="The layers of ZyRompts: a dependency-free engine, a declarative hook dispatcher, pure-function platform adapters and a gated workflow lifecycle.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="stylesheet" href="assets/css/site.css">
+<link rel="canonical" href="https://izynu.github.io/ZyRompts/architecture.html">
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="index.html">
+      <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+        <rect width="64" height="64" rx="14" fill="#0c1416"/>
+        <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+        <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+      </svg>
+      ZyRompts
+    </a>
+    <div class="header-end">
+      <nav class="site-nav" id="site-nav" data-nav aria-label="Primary">
+        <a href="index.html">Overview</a>
+        <a href="features.html">Features</a>
+        <a href="architecture.html" aria-current="page">Architecture</a>
+        <a href="security.html">Security</a>
+        <a href="index.html#install">Install</a>
+        <a href="https://github.com/izynu/ZyRompts" class="nav-ext">GitHub</a>
+      </nav>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Switch to dark theme">
+        <svg class="icon icon-sun" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/>
+          <path d="M10 2.2v1.8M10 16v1.8M2.2 10H4M16 10h1.8M4.5 4.5l1.3 1.3M14.2 14.2l1.3 1.3M15.5 4.5l-1.3 1.3M5.8 14.2l-1.3 1.3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        <svg class="icon icon-moon" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+          <path d="M15.4 12.4A6.4 6.4 0 0 1 7.6 4.6a6.4 6.4 0 1 0 7.8 7.8z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <button class="nav-toggle" type="button" data-nav-toggle aria-expanded="false" aria-controls="site-nav">
+        <span class="bars" aria-hidden="true"></span>
+        Menu
+      </button>
+    </div>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="crumbs"><a href="index.html">Overview</a><span>/</span>Architecture</p>
+      <h1>A small engine, and data around it</h1>
+      <p class="lede">
+        Behaviour that must hold is Python. Behaviour that guides is data. That
+        single split decides the module boundaries, the file formats and the
+        test strategy.
+      </p>
+    </div>
+  </div>
+
+  <div class="wrap doc-layout">
+    <nav class="toc glass" aria-label="On this page">
+      <span class="toc-label">On this page</span>
+      <a href="#layers">Layers</a>
+      <a href="#engine">The engine</a>
+      <a href="#hooks">Hook dispatcher</a>
+      <a href="#adapters">Adapters</a>
+      <a href="#lifecycle">Lifecycle</a>
+      <a href="#state">State</a>
+      <a href="#flow">Data flow</a>
+      <a href="#extending">Extending it</a>
+      <a href="#why">Why no framework</a>
+    </nav>
+
+    <div class="doc-body">
+
+      <section class="doc-section" id="layers">
+        <h2>Layers</h2>
+        <p>
+          Three layers, in one direction. Canonical source is written by a human.
+          The engine reads it. Adapters render it outward.
+        </p>
+        <figure class="glass pad-md">
+          <svg viewBox="0 0 520 300" role="img" aria-labelledby="lay-t lay-d" class="diagram">
+            <title id="lay-t">Layer diagram</title>
+            <desc id="lay-d">Canonical source files are loaded by the engine, which is used by the command line and rendered by the adapters into five platform trees.</desc>
+
+            <rect class="d-box d-box-accent" x="20" y="12" width="480" height="52" rx="8"/>
+            <text class="d-accent" x="36" y="34" font-size="12">canonical source</text>
+            <text class="d-dim" x="36" y="52" font-size="10.5">skills/&lt;name&gt;/SKILL.md  &middot;  agents/&lt;role&gt;.md  &middot;  hooks/rules/&lt;Event&gt;/*.json</text>
+
+            <path class="d-line" d="M260 64V84" stroke-width="1.5"/>
+
+            <rect class="d-box" x="20" y="84" width="480" height="108" rx="8"/>
+            <text class="d-text" x="36" y="106" font-size="12">core/zyrompts</text>
+            <text class="d-dim" x="36" y="126" font-size="10.5">classify   prompts   policy   review   workflow</text>
+            <text class="d-dim" x="36" y="144" font-size="10.5">state      research  decorum  agents  telemetry</text>
+            <text class="d-dim" x="36" y="162" font-size="10.5">hooks      handlers  adapters  evals   cli</text>
+            <text class="d-dim" x="36" y="182" font-size="10.5">no third-party imports</text>
+
+            <path class="d-line" d="M150 192V218" stroke-width="1.5"/>
+            <path class="d-line" d="M370 192V218" stroke-width="1.5"/>
+
+            <rect class="d-box" x="20" y="218" width="240" height="64" rx="8"/>
+            <text class="d-text" x="36" y="240" font-size="12">cli.py</text>
+            <text class="d-dim" x="36" y="258" font-size="10.5">13 commands, each with an exit code</text>
+
+            <rect class="d-box" x="280" y="218" width="220" height="64" rx="8"/>
+            <text class="d-text" x="296" y="240" font-size="12">adapters.py</text>
+            <text class="d-dim" x="296" y="258" font-size="10.5">pure renderers, five platforms</text>
+          </svg>
+        </figure>
+
+        <h3>Canonical source</h3>
+        <p>
+          Skills carry frontmatter for <code>name</code>, <code>description</code>,
+          <code>allowed-tools</code>, <code>argument-hint</code>,
+          <code>depends-on</code> and <code>optional-depends-on</code>. The body is
+          the procedure. Agent contracts mirror <code>agents.py:REGISTRY</code>
+          exactly, and a test fails if the two drift apart. Hook rules are one
+          JSON file per rule.
+        </p>
+        <p>Everything else in the repository is generated or derived.</p>
+      </section>
+
+      <section class="doc-section" id="engine">
+        <h2>The engine</h2>
+        <p>
+          Fifteen modules in <code>core/zyrompts/</code>. No third-party imports,
+          so the same code runs inside a hook, in a CI job, or on an air-gapped
+          machine with only Python 3.9 or newer.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>Module, responsibility, and the invariant that matters</caption>
+            <thead><tr><th>Module</th><th>Responsibility</th><th>Invariant</th></tr></thead>
+            <tbody>
+              <tr><td><code>classify.py</code></td><td>intent, complexity, tier, injection signals</td><td>a code-changing request with no anchor is never DIRECT</td></tr>
+              <tr><td><code>prompts.py</code></td><td>score, framework choice, rewrite</td><td>an explain request is not graded on success criteria</td></tr>
+              <tr><td><code>policy.py</code></td><td>autonomy levels, hard denials, redaction</td><td>hard denials fire under YOLO</td></tr>
+              <tr><td><code>hooks.py</code></td><td>rule loading, validation, priority merge</td><td>exit 0 on every path</td></tr>
+              <tr><td><code>handlers.py</code></td><td>named handlers and matchers</td><td>string names only, never eval or importlib</td></tr>
+              <tr><td><code>state.py</code></td><td>project state and event log</td><td>atomic write; schema downgrade refused</td></tr>
+              <tr><td><code>workflow.py</code></td><td>phases, gates, bounded loops</td><td>a block records where to resume</td></tr>
+              <tr><td><code>review.py</code></td><td>plan, spec and diff critique</td><td>a finding is reported only after refutation</td></tr>
+              <tr><td><code>research.py</code></td><td>source tiering, confidence</td><td>confidence needs evidence, not vibes</td></tr>
+              <tr><td><code>agents.py</code></td><td>roles, delegation, scheduling</td><td>no agent reviews its own output</td></tr>
+              <tr><td><code>adapters.py</code></td><td>canonical to platform renderers</td><td>pure functions; no I/O except write</td></tr>
+              <tr><td><code>evals.py</code></td><td>JSONL datasets, evaluators</td><td>one failing case does not stop the suite</td></tr>
+              <tr><td><code>decorum.py</code></td><td>behaviour policy, plus a checker</td><td>claims without evidence are flagged</td></tr>
+              <tr><td><code>telemetry.py</code></td><td>cost and duration accounting</td><td>priced by tier, not by product name</td></tr>
+              <tr><td><code>cli.py</code></td><td>the command line</td><td>every capability scriptable without a model</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-section" id="hooks">
+        <h2>Hook dispatcher</h2>
+        <p>
+          The dispatcher loads every rule, validates it against the capability
+          matrix, evaluates its criteria against the payload, and merges matching
+          fragments by priority. Lower number runs first.
+        </p>
+        <h3>Handlers are named, not imported</h3>
+        <p>
+          A rule says <code>"handler": "intake"</code>, and the dispatcher looks
+          the name up in a dictionary. There is no path-based import, no
+          <code>getattr</code>, no <code>eval</code>. A rule file stays data even
+          if an attacker controls it.
+        </p>
+        <h3>The dispatcher never fails loudly</h3>
+        <p>
+          Missing event, unparsable stdin, unknown rule, bad regex: each returns
+          an empty result and exit 0. A hook that crashes blocks the user's
+          prompt, which is worse than a hook that does nothing.
+        </p>
+        <h3>Bypass is a contract</h3>
+        <p>
+          <code>*</code> skips, <code>#</code> memorises, <code>/</code> is a
+          slash command, and harness machine events such as
+          <code>&lt;task-notification&gt;</code> and
+          <code>&lt;system-reminder&gt;</code> are silent. The handler layer
+          mirrors the engine's own check, so a handler-backed rule cannot diverge
+          from an action-backed one.
+        </p>
+        <pre class="code">payload on stdin
+  -> load rules for the event
+  -> validate each against CAPABILITY_MATRIX
+  -> evaluate criteria
+  -> merge inject_context fragments by priority
+  -> print one hookSpecificOutput object
+  -> exit 0</pre>
+      </section>
+
+      <section class="doc-section" id="adapters">
+        <h2>Adapters</h2>
+        <p>
+          An adapter is a pure function from a list of skills to a mapping of
+          paths to contents. Writing is the only I/O. That makes the generated
+          trees byte-reproducible, and
+          <code>scripts/generate-adapters.py --check</code> turns drift into a CI
+          failure rather than a review comment.
+        </p>
+        <div class="table-wrap">
+          <table>
+            <caption>Canonical frontmatter, and what each renderer keeps</caption>
+            <thead><tr><th>Canonical key</th><th>Claude Code</th><th>Gemini</th><th>Copilot</th><th>OpenCode</th></tr></thead>
+            <tbody>
+              <tr><td><code>name</code></td><td>as-is</td><td><code>zy-slug</code></td><td><code>zy-slug</code></td><td>omitted</td></tr>
+              <tr><td><code>description</code></td><td>yes</td><td>yes</td><td>yes, with a use-when suffix</td><td>yes</td></tr>
+              <tr><td><code>allowed-tools</code></td><td>yes</td><td>yes</td><td>dropped</td><td>as <code>tools:</code></td></tr>
+              <tr><td><code>argument-hint</code></td><td>yes</td><td>dropped</td><td>dropped</td><td>dropped</td></tr>
+              <tr><td><code>depends-on</code></td><td>not emitted</td><td>not emitted</td><td>not emitted</td><td>not emitted</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          <code>depends-on</code> is validated at build time for unknown names
+          and cycles, and used to order the Codex index. It is not emitted into
+          platform frontmatter because no platform reads it.
+        </p>
+        <div class="callout">
+          <b>The hook engine is Claude Code only.</b>
+          <span>It is the only one of the five platforms with a hook protocol
+          this engine targets. On the others, the procedures still say to
+          classify first, and <code>zyrompts classify</code> works as a CLI step.</span>
+        </div>
+      </section>
+
+      <section class="doc-section" id="lifecycle">
+        <h2>Lifecycle</h2>
+        <p>
+          Thirteen phases with a gate each, and four tiers that select a prefix.
+          The tier is a floor, never a ceiling.
+        </p>
+        <pre class="code">INTAKE -> CLARIFY -> RESEARCH -> SPECIFY -> PLAN -> CRITIQUE -> APPROVE
+       -> IMPLEMENT -> REVIEW -> FIX -> VERIFY -> ARCHIVE -> DONE</pre>
+        <p>
+          A blocked phase records <code>resume_at</code>, so the workflow stays
+          blocked until the gate is met instead of skipping forward. Two loops
+          are bounded: critique stops after 3 iterations and fix stops after 2,
+          both recorded in history when the cap is reached.
+        </p>
+      </section>
+
+      <section class="doc-section" id="state">
+        <h2>State</h2>
+        <p>
+          The state store writes <code>.zyrompts/state/project.json</code>
+          atomically: temporary file, flush, rename. It appends to an event log
+          in JSONL. The state file carries a schema version, and loading a newer
+          version raises rather than silently dropping fields the running code
+          does not understand.
+        </p>
+        <p>
+          The reason is narrow. A long agent run that loses its state has to
+          re-derive every decision, and the second derivation will not match the
+          first.
+        </p>
+      </section>
+
+      <section class="doc-section" id="flow">
+        <h2>Data flow, end to end</h2>
+        <ol class="prose plain-list">
+          <li>
+            <strong>UserPromptSubmit fires.</strong> The dispatcher loads the
+            intake rule, which calls the classifier and injects the tier, the
+            intent and the first phase.
+          </li>
+          <li>
+            <strong>The agent follows the named skill.</strong> Each skill's
+            procedure is the contract, and its dependencies say what must exist
+            first.
+          </li>
+          <li>
+            <strong>Before every mutating tool, PreToolUse fires.</strong> The
+            policy engine returns allow, ask or deny, with the rule that fired.
+          </li>
+          <li>
+            <strong>On Stop, the completion check runs.</strong> A completion
+            claim is checked against evidence in the transcript, and the missing
+            proof is injected back.
+          </li>
+          <li>
+            <strong>Archive writes the handoff.</strong> The state store records
+            the decision so the next session starts from it.
+          </li>
+        </ol>
+      </section>
+
+      <section class="doc-section" id="extending">
+        <h2>Extending it</h2>
+        <div class="table-wrap">
+          <table>
+            <caption>What you change, where, and whether a rebuild is needed</caption>
+            <thead><tr><th>Want to change</th><th>Where</th><th>Rebuild</th></tr></thead>
+            <tbody>
+              <tr><td>a nudge's wording or trigger</td><td><code>hooks/rules/&lt;Event&gt;/*.json</code></td><td>no</td></tr>
+              <tr><td>a skill's procedure</td><td><code>skills/&lt;name&gt;/SKILL.md</code></td><td><code>adapters --write</code></td></tr>
+              <tr><td>a platform's output format</td><td><code>adapters.py</code> renderer</td><td><code>adapters --write</code></td></tr>
+              <tr><td>a policy rule</td><td><code>policy.py</code> tables</td><td>no</td></tr>
+              <tr><td>a lifecycle gate</td><td><code>workflow.py</code></td><td>no</td></tr>
+              <tr><td>an eval expectation</td><td><code>evals/datasets/*.jsonl</code></td><td>no</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>
+          Adding a platform means writing one renderer, one builder, and a test,
+          then running the generator. The builder must be pure, because that is
+          what makes the drift check meaningful.
+        </p>
+      </section>
+
+      <section class="doc-section" id="why">
+        <h2>Why no framework</h2>
+        <p>
+          The core is a few thousand lines of standard library. A dependency-free
+          core is what makes the hooks safe to install, the evals fast enough to
+          run on every commit, and the behavior reproducible on a machine with no
+          network.
+        </p>
+        <p>
+          A framework would add an install step to a tool whose whole job is to
+          run before the agent does. That trade is not worth it here.
+        </p>
+      </section>
+
+    </div>
+  </div>
+
+  <div class="wrap section">
+    <div class="cta glass">
+      <div>
+        <h2>Next: the security model</h2>
+        <p>Every hard denial, the injection floor, and what is explicitly out of scope for a report.</p>
+      </div>
+      <div class="row">
+        <a class="btn btn-primary" href="security.html">Security model</a>
+        <a class="btn btn-ghost" href="features.html">All features</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a class="brand" href="index.html">
+          <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <rect width="64" height="64" rx="14" fill="#0c1416"/>
+            <path d="M19 19h26L19 45h26" fill="none" stroke="#5ad8c2" stroke-width="6" stroke-linecap="square"/>
+            <circle cx="45" cy="19" r="3.4" fill="#6ecf94"/>
+          </svg>
+          ZyRompts
+        </a>
+        <p>Deterministic workflow controls for AI coding agents. MIT licensed, no dependencies.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="features.html">Features</a></li>
+          <li><a href="architecture.html">Architecture</a></li>
+          <li><a href="security.html">Security model</a></li>
+          <li><a href="index.html#install">Install</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Project</h4>
+        <ul>
+          <li><a href="https://github.com/izynu/ZyRompts">GitHub</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CHANGELOG.md">Changelog</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/CONTRIBUTING.md">Contributing</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/SECURITY.md">Report a vulnerability</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="privacy.html">Privacy</a></li>
+          <li><a href="terms.html">Terms</a></li>
+          <li><a href="https://github.com/izynu/ZyRompts/blob/main/LICENSE">License</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-base">
+      <span>v0.1.0 &middot; MIT</span>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="https://github.com/izynu/ZyRompts">github.com/izynu/ZyRompts</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="assets/js/site.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 340" width="1200" height="340" role="img" aria-labelledby="t d">
+  <title id="t">ZyRompts</title>
+  <desc id="d">A request is classified into one of four workflow tiers, checked against policy, and rendered to five agent platforms.</desc>
+
+  <rect width="1200" height="340" fill="#070d0f"/>
+
+  <g font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+
+    <!-- title -->
+    <text x="64" y="84" font-size="46" font-weight="600" fill="#e6f0f1" letter-spacing="-1">ZyRompts</text>
+    <text x="64" y="116" font-size="15" fill="#8aa3a8" letter-spacing="0.2">Deterministic workflow controls for AI coding agents</text>
+
+    <!-- input -->
+    <rect x="64" y="150" width="196" height="44" rx="4" fill="#0f1a1c" stroke="#25363a"/>
+    <text x="80" y="177" font-size="13" fill="#c3d4d7">prompt</text>
+    <text x="146" y="177" font-size="13" fill="#4d666b">/</text>
+    <text x="160" y="177" font-size="13" fill="#8aa3a8">tool call</text>
+
+    <!-- flow line to classifier -->
+    <line x1="260" y1="172" x2="316" y2="172" stroke="#25363a" stroke-width="1.5"/>
+    <circle class="dot" r="3" fill="#5ad8c2">
+      <animateMotion dur="2.6s" repeatCount="indefinite" path="M260,172 L316,172"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="2.6s" repeatCount="indefinite"/>
+    </circle>
+
+    <!-- classifier -->
+    <rect x="316" y="132" width="180" height="80" rx="4" fill="#0f1a1c" stroke="#5ad8c2" stroke-opacity="0.55"/>
+    <text x="332" y="158" font-size="13" fill="#5ad8c2">classify</text>
+    <text x="332" y="180" font-size="11" fill="#8aa3a8">intent</text>
+    <text x="332" y="196" font-size="11" fill="#8aa3a8">complexity</text>
+    <text x="404" y="180" font-size="11" fill="#8aa3a8">anchor</text>
+    <text x="404" y="196" font-size="11" fill="#8aa3a8">signals</text>
+
+    <!-- tiers -->
+    <line x1="496" y1="172" x2="552" y2="172" stroke="#25363a" stroke-width="1.5"/>
+    <circle class="dot" r="3" fill="#5ad8c2">
+      <animateMotion dur="2.6s" begin="0.35s" repeatCount="indefinite" path="M496,172 L552,172"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="2.6s" begin="0.35s" repeatCount="indefinite"/>
+    </circle>
+
+    <g font-size="12">
+      <rect x="552" y="76"  width="168" height="30" rx="3" fill="#0f1a1c" stroke="#25363a"/>
+      <text x="566" y="96" fill="#c3d4d7">DIRECT</text><text x="690" y="96" fill="#4d666b">2</text>
+      <rect x="552" y="118" width="168" height="30" rx="3" fill="#0f1a1c" stroke="#25363a"/>
+      <text x="566" y="138" fill="#c3d4d7">LIGHT</text><text x="690" y="138" fill="#4d666b">4</text>
+      <rect x="552" y="160" width="168" height="30" rx="3" fill="#0f1a1c" stroke="#5ad8c2" stroke-opacity="0.55"/>
+      <text x="566" y="180" fill="#5ad8c2">PLANNED</text><text x="690" y="180" fill="#4d666b">10</text>
+      <rect x="552" y="202" width="168" height="30" rx="3" fill="#0f1a1c" stroke="#25363a"/>
+      <text x="566" y="222" fill="#c3d4d7">FULL</text><text x="690" y="222" fill="#4d666b">13</text>
+      <text x="552" y="256" font-size="11" fill="#6d878c">tier is a floor, never a ceiling</text>
+    </g>
+
+    <!-- policy -->
+    <line x1="720" y1="172" x2="776" y2="172" stroke="#25363a" stroke-width="1.5"/>
+    <circle class="dot" r="3" fill="#6ecf94">
+      <animateMotion dur="2.6s" begin="0.7s" repeatCount="indefinite" path="M720,172 L776,172"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="2.6s" begin="0.7s" repeatCount="indefinite"/>
+    </circle>
+
+    <rect x="776" y="132" width="176" height="80" rx="4" fill="#0f1a1c" stroke="#6ecf94" stroke-opacity="0.55"/>
+    <text x="792" y="158" font-size="13" fill="#6ecf94">policy</text>
+    <text x="792" y="180" font-size="11" fill="#8aa3a8">allow</text>
+    <text x="846" y="180" font-size="11" fill="#e0b86a">ask</text>
+    <text x="890" y="180" font-size="11" fill="#ef827c">deny</text>
+    <text x="792" y="198" font-size="11" fill="#6d878c">fires under yolo</text>
+
+    <!-- platforms -->
+    <line x1="952" y1="172" x2="1008" y2="172" stroke="#25363a" stroke-width="1.5"/>
+    <circle class="dot" r="3" fill="#8aa3a8">
+      <animateMotion dur="2.6s" begin="1.05s" repeatCount="indefinite" path="M952,172 L1008,172"/>
+      <animate attributeName="opacity" values="0;1;1;0" dur="2.6s" begin="1.05s" repeatCount="indefinite"/>
+    </circle>
+
+    <g font-size="11" fill="#8aa3a8">
+      <text x="1008" y="118">claude-code</text>
+      <text x="1008" y="142">gemini</text>
+      <text x="1008" y="166">copilot</text>
+      <text x="1008" y="190">codex</text>
+      <text x="1008" y="214">opencode</text>
+      <text x="1008" y="244" font-size="10" fill="#4d666b">rendered from one source</text>
+    </g>
+
+    <!-- footer rule -->
+    <line x1="64" y1="286" x2="1136" y2="286" stroke="#1a292c"/>
+    <text x="64" y="310" font-size="11" fill="#6d878c">If a rule must hold, it is code.</text>
+    <text x="1136" y="310" font-size="11" fill="#4d666b" text-anchor="end">v0.1.0</text>
+  </g>
+
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      /* Hide the moving dots, not just their animation: with the motion
+         removed a dot with no cx/cy would sit at the origin. */
+      .dot { display: none; }
+    }
+  </style>
+</svg>

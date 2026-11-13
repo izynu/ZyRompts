@@ -16,36 +16,36 @@ and an eval harness.
 
 **Core engine** (`core/zyrompts/`, dependency-free, Python 3.9+)
 
-- `classify` — intent, complexity, workflow tier, ambiguity findings and
+- `classify`: intent, complexity, workflow tier, ambiguity findings and
   injection detection, with a no-anchor floor and a wide-scope override.
-- `prompts` — 0-100 scoring across seven weighted dimensions, framework choice
+- `prompts`: 0-100 scoring across seven weighted dimensions, framework choice
   (RTF, CO-STAR, RISEN, CRISPE, few-shot), rewriting with open questions, and
   model-family guidance.
-- `policy` — four autonomy levels, a hard-deny table that fires under YOLO,
+- `policy`: four autonomy levels, a hard-deny table that fires under YOLO,
   protected paths, workspace containment, the untrusted-content injection floor,
   and secret redaction.
-- `hooks` — one dispatcher, JSON rule registry, priority merge, validation
+- `hooks`: one dispatcher, JSON rule registry, priority merge, validation
   against a capability matrix, and exit-0 on every path.
-- `handlers` — named handlers (`intake`, `verify_stop`, `memory_recall`) and
+- `handlers`: named handlers (`intake`, `verify_stop`, `memory_recall`) and
   matchers (`plan_exists`, `has_acceptance_criteria`, `is_high_complexity`),
   reachable only by name from a rule.
-- `state` — atomic, schema-versioned project state with an append-only JSONL
+- `state`: atomic, schema-versioned project state with an append-only JSONL
   event log.
-- `workflow` — 13 phases, per-phase gates, four tiers, bounded critique (3) and
+- `workflow`: 13 phases, per-phase gates, four tiers, bounded critique (3) and
   fix (2) loops, and a block that records where to resume.
-- `review` — deterministic plan, specification and diff critique with
+- `review`: deterministic plan, specification and diff critique with
   CONFIRMED/UNVERIFIED confidence, a refutation step, and BLOCK/REVISE/PASS.
-- `research` — source tiering, evidence-derived confidence, freshness, and gap
+- `research`: source tiering, evidence-derived confidence, freshness, and gap
   reporting.
-- `agents` — 13 role specs, a bounded orchestrator, writer serialisation, and
+- `agents`: 13 role specs, a bounded orchestrator, writer serialisation, and
   structural review independence.
-- `adapters` — pure renderers for Claude Code, Gemini, Copilot, Codex and
+- `adapters`: pure renderers for Claude Code, Gemini, Copilot, Codex and
   OpenCode, plus dependency-graph cycle detection.
-- `evals` — JSONL datasets with four evaluators and per-case failure isolation.
-- `decorum` — the behaviour policy and a deterministic checker for the three
+- `evals`: JSONL datasets with four evaluators and per-case failure isolation.
+- `decorum`: the behaviour policy and a deterministic checker for the three
   mechanical failures.
-- `telemetry` — tier-priced cost and duration accounting.
-- `cli` — 13 commands, each usable as a gate via its exit code.
+- `telemetry`: tier-priced cost and duration accounting.
+- `cli`: 13 commands, each usable as a gate via its exit code.
 
 **Content**
 
@@ -56,7 +56,7 @@ and an eval harness.
 - 6 document templates (specification, plan, critique, task list, execution log,
   acceptance tests).
 - 82 eval cases across classification, policy, prompt scoring and injection.
-- 317 tests.
+- 318 tests.
 
 **Documentation**
 
