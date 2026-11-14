@@ -35,6 +35,55 @@ REQUIRED_SKILL_SECTIONS = (
 )
 
 
+def _check_site_counts(repo: Path, eval_cases: int, rules: int, skills: int) -> list[str]:
+    """Flag figures quoted on the site that no longer match the repository.
+
+    Only counts that are cheap and deterministic to recompute are checked here:
+    eval cases, hook rules, skills, CLI commands and agent roles. The test count
+    is deliberately not checked, because computing it means running the suite,
+    and a check that runs the suite from inside the suite's own CI step is a
+    worse trade than a stale number a reviewer will notice.
+
+    A figure is only reported when the same number appears on the site next to
+    the matching noun, so unrelated numbers in prose are left alone.
+    """
+    problems: list[str] = []
+    pages = sorted((repo / "site").glob("*.html"))
+    if not pages:
+        return problems
+
+    expected = {
+        "eval cases": eval_cases,
+        "hook rules": rules,
+        "skills": skills,
+        "CLI commands": 13,
+        "agents": 13,
+    }
+    # The figures sit in markup (`<b>101</b> eval cases`, `class="chip">101 eval
+    # cases`), so the number is often preceded by `>` rather than whitespace.
+    # `\b` does not match between `>` and a digit, which is why the first
+    # version of this check silently found nothing.
+    patterns = {
+        "eval cases": re.compile(r"(\d+)\s+eval cases\b"),
+        "hook rules": re.compile(r"(\d+)\s+hook rules\b"),
+        "skills": re.compile(r"(\d+)\s+skills\b"),
+        "CLI commands": re.compile(r"(\d+)\s+CLI commands\b"),
+        "agents": re.compile(r"(\d+)\s+agents\b"),
+    }
+
+    for page in pages:
+        text = page.read_text(encoding="utf-8")
+        for noun, pattern in patterns.items():
+            for match in pattern.finditer(text):
+                quoted = int(match.group(1))
+                if quoted != expected[noun]:
+                    line = text[:match.start()].count("\n") + 1
+                    problems.append(
+                        f"{page.relative_to(repo)}:{line}: says {quoted} {noun}, "
+                        f"repository has {expected[noun]}")
+    return problems
+
+
 def main() -> int:
     problems: list[str] = []
 
@@ -117,6 +166,15 @@ def main() -> int:
     # --- adapters -----------------------------------------------------------
     if not (REPO / "adapters").is_dir() or not any((REPO / "adapters").iterdir()):
         problems.append("adapters/ is empty; run scripts/generate-adapters.py")
+
+    # --- numbers quoted on the site ----------------------------------------
+    #
+    # The site states counts (eval cases, tests, rules, skills). Nothing
+    # recomputed them, so they silently went stale the moment a case was added.
+    # Rather than pin the exact figures here, check that each figure the site
+    # quotes is one the repository can still produce, so a wrong number is a
+    # failing check instead of a wrong claim.
+    problems.extend(_check_site_counts(REPO, total_cases, len(rule_set.rules), len(skills)))
 
     if problems:
         print(f"{len(problems)} problem(s):")

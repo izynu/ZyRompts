@@ -182,9 +182,18 @@ def cmd_validate(args) -> int:
             problems.append(f"missing {required}")
 
     if problems:
-        print(f"{len(problems)} problem(s):")
+        print(f"{len(problems)} problem(s) in {root}:")
         for problem in problems:
             print(f"  - {problem}")
+        # The data files (rules, skills, datasets) live in the repository, not
+        # in the wheel, so a non-editable install resolves `repo_root()` to a
+        # path with no data in it. Say which knob fixes that instead of leaving
+        # the reader with a list of missing files and no next step.
+        if not (root / "hooks" / "rules").is_dir():
+            print("\nThis looks like an installed package rather than a clone. "
+                  "The rules, skills and datasets are read from the repository, "
+                  "so point ZYROMPTS_ROOT at a checkout:\n"
+                  "  export ZYROMPTS_ROOT=/path/to/ZyRompts")
         return 1
     print(f"ok: {len(rule_set.rules)} rules, {len(skills)} skills")
     return 0

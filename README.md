@@ -101,6 +101,18 @@ pip install -e core
 zyrompts health
 ```
 
+The rules, skills and eval datasets are read from the repository, not from the
+installed package. That is why the install above is editable (`-e`): the code
+lives in `core/`, the data lives at the top level, and the CLI resolves one from
+the other. If you install it non-editable, or run it from a wheel, point the CLI
+at a checkout:
+
+```bash
+export ZYROMPTS_ROOT=/path/to/ZyRompts
+```
+
+`zyrompts validate` says this explicitly when it cannot find the data.
+
 ## Use
 
 ```bash

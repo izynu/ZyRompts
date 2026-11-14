@@ -1,5 +1,7 @@
 [build-system]
-requires = ["setuptools>=68"]
+# 77 is the floor for the SPDX `license = "MIT"` string form. 68 accepts the
+# deprecated table form only, so a build env pinned to 68-76 would reject this.
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -8,12 +10,14 @@ version = "0.1.0"
 description = "Modular multi-agent workflow framework for AI coding agents"
 readme = { text = "Deterministic workflow controls for AI coding agents: one canonical skill library, rendered to Claude Code, Gemini, Copilot, Codex and OpenCode.", content-type = "text/markdown" }
 requires-python = ">=3.9"
-license = { text = "MIT" }
+# An SPDX string, not a table: `license = { text = "..." }` is deprecated and
+# setuptools refuses it from 2027-02-18. The classifier below is dropped for
+# the same reason; the SPDX expression replaces it.
+license = "MIT"
 authors = [{ name = "ZyRompts contributors" }]
 keywords = ["agents", "workflow", "planning", "critique", "prompt-engineering", "security"]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
 ]
 
