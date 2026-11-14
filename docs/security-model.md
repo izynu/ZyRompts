@@ -13,7 +13,7 @@ cannot be talked out of a branch in `policy.py`.
 | Agent -> filesystem | the agent's chosen path | `check_path`, workspace containment |
 | Agent -> shell | the agent's chosen command | `_HARD_DENY_COMMANDS` |
 | Rule file -> dispatcher | a JSON file that may be edited | `validate_rule`, allowlisted handlers |
-| Session -> session | a previous transcript | redaction before logging |
+| Session -> session | a previous transcript | `redact_secrets` on every state and event-log write |
 
 ## The four layers
 
@@ -54,6 +54,12 @@ if untrusted and verdict.decision is Decision.ALLOW:
     return Verdict(Decision.ASK, "untrusted content cannot escalate privilege",
                    "injection-floor")
 ```
+
+The cap is a post-filter applied to the verdict of every branch in `evaluate`
+and to both allow-list paths in `PolicyConfig.evaluate`, so a tool added later
+cannot be born without it. An allow list says the operator trusts the *tool*;
+it says nothing about the *content* of this call, which may have come from a
+page or a tool result, so it does not lift the floor.
 
 This is what makes "the web page told me to run this" a question rather than an
 action.

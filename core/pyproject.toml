@@ -8,7 +8,10 @@ build-backend = "setuptools.build_meta"
 name = "zyrompts"
 version = "0.1.0"
 description = "Modular multi-agent workflow framework for AI coding agents"
-readme = { text = "Deterministic workflow controls for AI coding agents: one canonical skill library, rendered to Claude Code, Gemini, Copilot, Codex and OpenCode.", content-type = "text/markdown" }
+# This distribution is the library, not a standalone install: the rules, skills
+# and eval datasets are read from a repository checkout, so a wheel install
+# needs ZYROMPTS_ROOT. `zyrompts validate` says so when the data is missing.
+readme = { text = "Deterministic workflow controls for AI coding agents: one canonical skill library, rendered to Claude Code, Gemini, Copilot, Codex and OpenCode. Install with `pip install -e core` from a checkout; the data files live in the repository.", content-type = "text/markdown" }
 requires-python = ">=3.9"
 # An SPDX string, not a table: `license = { text = "..." }` is deprecated and
 # setuptools refuses it from 2027-02-18. The classifier below is dropped for

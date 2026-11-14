@@ -55,9 +55,9 @@
       <p class="crumbs"><a href="index.html">Overview</a><span>/</span>Security</p>
       <h1>The controls that matter are not prompts</h1>
       <p class="lede">
-        A model can be talked out of an instruction. It cannot be talked out of a
-        branch in <code>policy.py</code>. This page states the trust boundaries,
-        every hard denial, and what is explicitly out of scope for a report.
+        Every boundary on this page is a branch in <code>policy.py</code>, not a
+        sentence in a prompt. It states the trust boundaries, every hard denial,
+        and what is explicitly out of scope for a report.
       </p>
     </div>
   </div>
@@ -108,7 +108,7 @@
         </p>
         <div class="table-wrap">
           <table>
-            <caption>_HARD_DENY_COMMANDS, nine rules</caption>
+            <caption>hard-deny rule names, nine categories</caption>
             <thead><tr><th>Rule</th><th>Catches</th></tr></thead>
             <tbody>
               <tr><td><code>root-delete</code></td><td><code>rm -rf /</code>, <code>rm -rf ~</code></td></tr>
@@ -206,11 +206,18 @@
       <section class="doc-section" id="secrets">
         <h2>Secret handling</h2>
         <p>
-          The redactor recognises OpenAI, Anthropic, GitHub, AWS, Slack and JWT
-          credentials, PEM private key blocks, and generic
-          <code>password=</code> or <code>token:</code> assignments. It returns
-          both the redacted text and the kinds it found, so a caller can log that
-          a secret was present without logging the secret.
+          The redactor recognises OpenAI, Anthropic, GitHub, AWS, Slack, Stripe,
+          Google and npm credentials, JWT tokens, PEM private key blocks, and
+          generic <code>password=</code> or <code>token:</code> assignments. It
+          returns both the redacted text and the kinds it found, so a caller can
+          log that a secret was present without logging the secret.
+        </p>
+        <p>
+          It runs in two places, not just the CLI. Every state and event-log
+          write is redacted before it reaches disk, and a policy verdict carries
+          <code>redacted_args</code> whenever the call's arguments held a
+          credential, so an approval prompt or a log line shows the command
+          without the secret.
         </p>
         <div class="term">
           <div class="term-bar">
@@ -350,7 +357,7 @@
         <p>Deterministic workflow controls for AI coding agents. MIT licensed, no dependencies.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
+        <h2 class="footer-label">Product</h2>
         <ul>
           <li><a href="features.html">Features</a></li>
           <li><a href="architecture.html">Architecture</a></li>
@@ -359,7 +366,7 @@
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Project</h4>
+        <h2 class="footer-label">Project</h2>
         <ul>
           <li><a href="https://github.com/izynu/ZyRompts">GitHub</a></li>
           <li><a href="https://github.com/izynu/ZyRompts/blob/main/CHANGELOG.md">Changelog</a></li>
@@ -368,7 +375,7 @@
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
+        <h2 class="footer-label">Legal</h2>
         <ul>
           <li><a href="privacy.html">Privacy</a></li>
           <li><a href="terms.html">Terms</a></li>

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the full local gate: tests, validate, evals, adapter sync, health.
+"""Run the full local gate: tests, validate, evals, health, repo contract, adapters.
 
 This is the same sequence CI runs, in the same order, so a green local run and a
 green CI run mean the same thing.
@@ -38,6 +38,10 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     python = sys.executable
+    # Same steps, same order as .github/workflows/ci.yml: tests, validate,
+    # eval, health, repository contract, adapters. Health used to sit last here
+    # and fourth in CI, so a green local run did not mean what this docstring
+    # claimed it meant.
     steps = [
         ("unit and integration tests",
          run("tests", python, "-m", "pytest", "tests/", "-q")),
@@ -48,12 +52,12 @@ def main(argv: list[str] | None = None) -> int:
         steps.append(("eval datasets",
                       run("eval", python, "-m", "zyrompts", "eval")))
     steps.extend([
+        ("health",
+         run("health", python, "-m", "zyrompts", "health")),
         ("repository contract",
          run("repo", python, str(REPO / "scripts" / "validate-repo.py"))),
         ("adapters in sync",
          run("adapters", python, str(REPO / "scripts" / "generate-adapters.py"), "--check")),
-        ("health",
-         run("health", python, "-m", "zyrompts", "health")),
     ])
 
     failed = [label for label, ok in steps if not ok]

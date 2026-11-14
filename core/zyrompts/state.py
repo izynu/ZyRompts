@@ -17,6 +17,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 from dataclasses import asdict, dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
@@ -26,6 +27,27 @@ STATE_VERSION = 1
 
 def _now() -> str:
     return datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+
+def _redact_fields(fields: dict) -> dict:
+    """Redact every string value, recursing into lists and dicts.
+
+    Imported lazily so `state` stays importable without `policy`, which the
+    CLI already imports: a module-level import would make the dependency
+    circular the day policy starts using state.
+    """
+    from .policy import redact_secrets
+
+    def _walk(value):
+        if isinstance(value, str):
+            return redact_secrets(value)[0]
+        if isinstance(value, list):
+            return [_walk(item) for item in value]
+        if isinstance(value, dict):
+            return {key: _walk(item) for key, item in value.items()}
+        return value
+
+    return {key: _walk(value) for key, value in fields.items()}
 
 
 @dataclass
@@ -117,6 +139,11 @@ class StateStore:
         self.dir = self.root / ".zyrompts" / "state"
         self.path = self.dir / "project.json"
         self.log_path = self.dir / "events.jsonl"
+        # Set by load() when the on-disk file was unreadable: where the original
+        # was moved to, and why. Callers can surface this instead of silently
+        # starting a project that looks new.
+        self.corrupt_backup: Path | None = None
+        self.quarantined_reason: str = ""
         if state is not None:
             self.state = state
         else:
@@ -134,10 +161,29 @@ class StateStore:
             return self.state
         try:
             data = json.loads(self.path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError):
+        except (OSError, json.JSONDecodeError) as exc:
+            # Unparsable JSON is recoverable: degrade to a fresh state so the
+            # session is not blocked, but do not leave the broken file where the
+            # next save() would overwrite it, which turns a parse error into
+            # permanent data loss. Move it aside once, and only once.
+            self.corrupt_backup = self._quarantine(exc)
             return self.state
+        # A newer schema is a different decision: the file is readable and the
+        # running code does not understand it, so proceeding would mis-read
+        # fields. Refuse, as the module contract says, rather than replace the
+        # user's state with an empty one.
         self.state = ProjectState.from_dict(data)
         return self.state
+
+    def _quarantine(self, reason: Exception) -> Path | None:
+        """Move an unreadable state file aside, returning where it went."""
+        target = self.path.with_suffix(f".corrupt-{int(time.time())}.json")
+        try:
+            os.replace(self.path, target)
+        except OSError:
+            return None
+        self.quarantined_reason = f"{type(reason).__name__}: {reason}"
+        return target
 
     def save(self) -> Path:
         self.dir.mkdir(parents=True, exist_ok=True)
@@ -157,8 +203,16 @@ class StateStore:
         return self.path
 
     def log(self, event: str, **fields) -> None:
+        """Append one event, redacting credential-shaped values first.
+
+        The event log is the one place a session's own words are written to
+        disk and then kept. A goal, a task title or a note routinely quotes a
+        command, a config line or a transcript, which is exactly how a token
+        ends up in a file that outlives the session. Redaction happens here
+        rather than at the call sites so a new mutation cannot forget it.
+        """
         self.dir.mkdir(parents=True, exist_ok=True)
-        entry = {"at": _now(), "event": event, **fields}
+        entry = {"at": _now(), "event": event, **_redact_fields(fields)}
         with self.log_path.open("a", encoding="utf-8") as handle:
             handle.write(json.dumps(entry) + "\n")
 

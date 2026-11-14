@@ -52,6 +52,9 @@ class Verdict:
     decision: Decision
     reason: str
     rule: str = ""
+    # Present only when the call's arguments contained a credential. An ASK
+    # verdict is shown to a human and often logged; both need the arguments
+    # without the secret. Populated by `evaluate`, never by hand.
     redacted_args: dict | None = None
 
     def to_dict(self) -> dict:
@@ -181,6 +184,11 @@ _CATASTROPHIC_TARGETS = {
 # was not recognised at all, so it deleted the home directory without a denial.
 _HOME_EXPANSION = re.compile(r"\$\{home(?::[-=+?][^}]*)?\}", re.IGNORECASE)
 
+# Absolute sentinel substituted for the home root while folding `..` segments.
+# It has to be absolute: normpath on a relative sentinel turns `~/..` into `.`,
+# which then reads as an ordinary relative path and escapes the target check.
+_HOME_SENTINEL = "/\x00home"
+
 
 def _normalise_command(command: str) -> str:
     """Fold the spellings a shell treats as identical into one form.
@@ -198,17 +206,21 @@ def _normalise_command(command: str) -> str:
 
     def _fold(match: re.Match[str]) -> str:
         token = match.group(0)
-        # `~` and `$home` are roots, and normpath would collapse `~/..` to `.`,
-        # which reads as an ordinary relative path. Substituting a sentinel
-        # keeps the root visible through the fold, then the sentinel is put
-        # back so the target comparison still sees a home path.
-        guarded = token
-        if guarded.startswith("~"):
-            guarded = "\x00home" + guarded[1:]
-        elif guarded.startswith("$home"):
-            guarded = "\x00home" + guarded[5:]
+        # `~` and `$home` are roots, and normpath on a *relative* sentinel
+        # collapses `~/..` to `.`, which reads as an ordinary relative path.
+        # An absolute sentinel keeps the root anchored: `~/..` folds to `/`,
+        # which is already a catastrophic target, and `~/foo/..` folds back to
+        # home. The sentinel is substituted back afterwards so the target
+        # comparison still sees a home path.
+        is_home = token.startswith("~") or token.startswith("$home")
+        if is_home:
+            prefix = 1 if token.startswith("~") else 5
+            guarded = _HOME_SENTINEL + token[prefix:]
+        else:
+            guarded = token
         folded = posixpath.normpath(guarded)
-        folded = folded.replace("\x00home", "~")
+        if is_home:
+            folded = folded.replace(_HOME_SENTINEL, "~")
         return folded if folded else token
 
     return re.sub(r"(?<![\w.-])(/|~/|\$home)[\w./~-]*", _fold, text)
@@ -455,6 +467,25 @@ def evaluate(tool_name: str, args: dict, autonomy: Autonomy | str = Autonomy.ASK
     """
     args = args if isinstance(args, dict) else {}
     autonomy = _coerce_autonomy(autonomy)
+    return _with_redacted_args(_decide(tool_name, args, autonomy, root, untrusted), args)
+
+
+def _with_redacted_args(verdict: Verdict, args: dict) -> Verdict:
+    """Attach the redacted arguments to a verdict when they held a secret.
+
+    Done once at the edge rather than in every branch, for the same reason the
+    injection floor is: a branch added later must not be able to skip it.
+    """
+    if verdict.redacted_args is not None:
+        return verdict
+    redacted = _redact_arguments(args)
+    if redacted is None:
+        return verdict
+    return Verdict(verdict.decision, verdict.reason, verdict.rule, redacted)
+
+
+def _decide(tool_name: str, args: dict, autonomy: Autonomy,
+            root: Path | None, untrusted: bool) -> Verdict:
 
     if not isinstance(tool_name, str) or not tool_name:
         return Verdict(Decision.DENY, "missing tool name", "invalid-input")
@@ -517,6 +548,35 @@ def _apply_injection_floor(verdict: Verdict, untrusted: bool) -> Verdict:
     return verdict
 
 
+def _redact_arguments(args: dict) -> dict | None:
+    """Return a copy of `args` with credentials replaced, or None if clean.
+
+    A verdict is the object a harness prints and a user reads, and a tool call
+    routinely carries a token: `curl -H 'Authorization: Bearer ghp_...'`. The
+    decision does not need the secret, so the verdict carries the redacted form
+    and omits the field entirely when there was nothing to redact.
+    """
+    if not isinstance(args, dict):
+        return None
+    found = False
+
+    def _walk(value):
+        nonlocal found
+        if isinstance(value, str):
+            out, kinds = redact_secrets(value)
+            if kinds:
+                found = True
+            return out
+        if isinstance(value, list):
+            return [_walk(item) for item in value]
+        if isinstance(value, dict):
+            return {key: _walk(item) for key, item in value.items()}
+        return value
+
+    redacted = {key: _walk(value) for key, value in args.items()}
+    return redacted if found else None
+
+
 @dataclass
 class PolicyConfig:
     autonomy: Autonomy = Autonomy.ASK
@@ -535,12 +595,21 @@ class PolicyConfig:
             return hard
         if tool_name in self.deny_tools:
             return Verdict(Decision.DENY, f"tool {tool_name!r} is on the deny list", "deny-list")
+        # Both allow paths run through the injection floor. An allow list is
+        # the operator trusting the *tool*; it says nothing about the *content*
+        # of this particular call, which may have arrived from a web page or a
+        # tool result. Skipping the floor here would make the allow list the
+        # one configuration that turns untrusted content into an execution.
         if tool_name in self.allow_tools:
-            return Verdict(Decision.ALLOW, f"tool {tool_name!r} is on the allow list", "allow-list")
+            return _apply_injection_floor(
+                Verdict(Decision.ALLOW, f"tool {tool_name!r} is on the allow list",
+                        "allow-list"), untrusted)
         command = args.get("command", "") if isinstance(args, dict) else ""
         for pattern in self.allow_commands:
             if command and fnmatch.fnmatch(command, pattern):
-                return Verdict(Decision.ALLOW, f"command matches {pattern!r}", "allow-command")
+                return _apply_injection_floor(
+                    Verdict(Decision.ALLOW, f"command matches {pattern!r}", "allow-command"),
+                    untrusted)
         return evaluate(tool_name, args, self.autonomy, self.root, untrusted)
 
     @classmethod

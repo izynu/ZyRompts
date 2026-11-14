@@ -53,8 +53,10 @@ purpose: a policy nobody reads is not a policy.
 | Problem | Why it is checked |
 |---|---|
 | em dash | a style rule with a mechanical test; cheap to enforce |
+| decorative emoji | the same rule as em dashes: decoration where a word belongs |
 | flattery opener ("great question", "certainly", "sure thing") | filler that displaces the answer |
 | completion claim with no evidence | the single most expensive failure: "all tests pass" with no run |
+| absolute certainty ("definitely works", "guaranteed") with no verification | a claim stronger than the evidence behind it |
 
 The completion-claim check is deliberately strict about what counts as evidence.
 A claim is only backed if the text also contains something actually run or
@@ -71,7 +73,7 @@ no decorum problems detected
 
 ## What the checker cannot enforce
 
-Tone, honesty, and judgement are not regex-shaped. The checker catches the three
+Tone, honesty, and judgement are not regex-shaped. The checker catches the five
 failures that are mechanical and expensive; the rest is the model's job under
 the policy text. That split is deliberate: a checker that tried to grade honesty
 would produce false confidence, which is worse than no checker.

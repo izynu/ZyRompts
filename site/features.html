@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ZyRompts Features</title>
-<meta name="description" content="Every capability in ZyRompts, the module that implements it, and the test or eval case that proves it fires.">
+<meta name="description" content="Every capability in ZyRompts, the module that implements it, and the table or dataset that pins its behaviour.">
 <meta name="color-scheme" content="light dark">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="stylesheet" href="assets/css/site.css">
@@ -55,9 +55,12 @@
       <p class="crumbs"><a href="index.html">Overview</a><span>/</span>Features</p>
       <h1>What is in the framework</h1>
       <p class="lede">
-        Each capability below names the module that implements it and the number
-        of tests or eval cases that cover it. Counts come from the repository at
-        version 0.1.0 and are re-checked by <code>scripts/validate-repo.py</code>.
+        Each capability below names the module that implements it, where a
+        single module owns the behaviour, and the table or dataset that pins it.
+        Counts come from the repository at version 0.1.0. The skill, agent,
+        rule, command and eval-case counts are re-checked by
+        <code>scripts/validate-repo.py</code>; the test count is reported by the
+        suite itself, so read it from a test run.
       </p>
       <div class="row">
         <span class="chip">17 skills</span>
@@ -65,7 +68,7 @@
         <span class="chip">13 hook rules</span>
         <span class="chip">13 CLI commands</span>
         <span class="chip">101 eval cases</span>
-        <span class="chip">436 tests</span>
+        <span class="chip">498 tests</span>
       </div>
     </div>
   </div>
@@ -342,7 +345,7 @@
         </p>
         <div class="table-wrap">
           <table>
-            <caption>Generated output, 74 files across five platforms</caption>
+            <caption>Generated output, 75 files across five platforms</caption>
             <thead><tr><th>Platform</th><th>Per-skill file</th><th>Manifest</th><th>Hook engine</th></tr></thead>
             <tbody>
               <tr><td>Claude Code</td><td><code>skills/&lt;name&gt;/SKILL.md</code></td><td>plugin.json, hooks.json</td><td>yes</td></tr>
@@ -409,6 +412,16 @@
           reported only after a refutation attempt, and carries a confidence
           grade: CONFIRMED when the check proves it, UNVERIFIED when it does not.
         </p>
+        <div class="term">
+          <div class="term-bar">
+            <span class="term-title">plan.md</span>
+          </div>
+          <pre class="term-body"><code># Plan
+
+## Chapter 1 - Middleware
+
+Add rate limiting to src/middleware/rate.ts.</code></pre>
+        </div>
         <div class="term">
           <div class="term-bar">
             <span class="term-title">zyrompts plan-critique plan.md --check-paths</span>
@@ -567,7 +580,7 @@ Suggestion: Confirm the path or mark it as a file to be created.</code></pre>
         <p>Deterministic workflow controls for AI coding agents. MIT licensed, no dependencies.</p>
       </div>
       <div class="footer-col">
-        <h4>Product</h4>
+        <h2 class="footer-label">Product</h2>
         <ul>
           <li><a href="features.html">Features</a></li>
           <li><a href="architecture.html">Architecture</a></li>
@@ -576,7 +589,7 @@ Suggestion: Confirm the path or mark it as a file to be created.</code></pre>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Project</h4>
+        <h2 class="footer-label">Project</h2>
         <ul>
           <li><a href="https://github.com/izynu/ZyRompts">GitHub</a></li>
           <li><a href="https://github.com/izynu/ZyRompts/blob/main/CHANGELOG.md">Changelog</a></li>
@@ -585,7 +598,7 @@ Suggestion: Confirm the path or mark it as a file to be created.</code></pre>
         </ul>
       </div>
       <div class="footer-col">
-        <h4>Legal</h4>
+        <h2 class="footer-label">Legal</h2>
         <ul>
           <li><a href="privacy.html">Privacy</a></li>
           <li><a href="terms.html">Terms</a></li>

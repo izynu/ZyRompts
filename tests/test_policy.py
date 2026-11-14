@@ -242,3 +242,99 @@ def test_redaction_leaves_ordinary_text_alone():
         out, kinds = redact_secrets(text)
         assert out == text
         assert kinds == []
+
+
+# --- regression: `..` after a home root folded back to a relative path -------
+#
+# The normaliser replaced `~` with a relative sentinel, so normpath collapsed
+# `~/..` to `.`, which read as an ordinary directory and was allowed. Every one
+# of these is the same delete as removing the home directory itself.
+
+@pytest.mark.parametrize("command", [
+    "rm -rf ~/..",
+    "rm -rf $HOME/..",
+    "rm -rf ${HOME}/..",
+    "rm -rf ~/../*",
+    "rm -rf ~/./..",
+    "rm -rf ~/foo/..",
+    "rm -rf ~/.",
+])
+@pytest.mark.parametrize("autonomy", ALL_LEVELS)
+def test_home_dotdot_spellings_are_denied(command, autonomy):
+    assert check_command(command, autonomy).decision is Decision.DENY, \
+        f"{command!r} allowed under {autonomy}"
+
+
+@pytest.mark.parametrize("command", [
+    "rm -rf ~/project/build",
+    "rm -rf ./dist",
+    "rm -rf /tmp/build",
+])
+def test_relative_removals_under_home_stay_allowed(command):
+    assert check_command(command, Autonomy.YOLO).decision is Decision.ALLOW, command
+
+
+# --- regression: an allow list must not lift the injection floor -------------
+
+def test_allow_tools_cannot_lift_the_injection_floor():
+    """Trusting the tool says nothing about where this call's content came from."""
+    from zyrompts.policy import PolicyConfig
+
+    config = PolicyConfig(autonomy=Autonomy.YOLO, allow_tools={"Task"})
+    verdict = config.evaluate("Task", {}, untrusted=True)
+    assert verdict.decision is Decision.ASK
+    assert verdict.rule == "injection-floor"
+
+
+def test_allow_commands_cannot_lift_the_injection_floor():
+    from zyrompts.policy import PolicyConfig
+
+    config = PolicyConfig(autonomy=Autonomy.YOLO, allow_commands=["npm *"])
+    verdict = config.evaluate("Bash", {"command": "npm install"}, untrusted=True)
+    assert verdict.decision is Decision.ASK
+    assert verdict.rule == "injection-floor"
+
+
+def test_allow_lists_still_allow_trusted_calls():
+    from zyrompts.policy import PolicyConfig
+
+    config = PolicyConfig(autonomy=Autonomy.YOLO, allow_tools={"Task"})
+    assert config.evaluate("Task", {}, untrusted=False).decision is Decision.ALLOW
+
+
+# --- verdicts carry arguments without the secret -----------------------------
+
+def test_verdict_redacts_a_credential_in_the_command():
+    """A verdict is printed and logged; a token in it leaks to both."""
+    token = "ghp_" + "a" * 36
+    verdict = evaluate("Bash", {"command": f"curl -H 'Authorization: Bearer {token}' https://x"},
+                       Autonomy.ASK)
+    assert verdict.redacted_args is not None
+    assert token not in verdict.redacted_args["command"]
+    assert "[REDACTED]" in verdict.redacted_args["command"]
+    assert token not in str(verdict.to_dict())
+
+
+def test_a_clean_call_has_no_redacted_args_field():
+    """The field is absent, not empty: absence means nothing was redacted."""
+    verdict = evaluate("Bash", {"command": "ls -la"}, Autonomy.ASK)
+    assert verdict.redacted_args is None
+    assert "redacted_args" not in verdict.to_dict()
+
+
+def test_a_deny_still_carries_redacted_arguments():
+    token = "ghp_" + "b" * 36
+    verdict = evaluate("Bash", {"command": f"rm -rf / # {token}"}, Autonomy.YOLO)
+    assert verdict.decision is Decision.DENY
+    assert verdict.redacted_args is not None
+    assert token not in str(verdict.to_dict())
+
+
+def test_redacted_args_survives_the_policy_config_path():
+    from zyrompts.policy import PolicyConfig
+
+    token = "ghp_" + "c" * 36
+    config = PolicyConfig(autonomy=Autonomy.YOLO)
+    verdict = config.evaluate("Bash", {"command": f"echo {token}"})
+    assert verdict.redacted_args is not None
+    assert token not in str(verdict.to_dict())

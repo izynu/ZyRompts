@@ -213,3 +213,48 @@ def test_dependency_cycles_ignores_unknown_names():
     """A missing skill is reported by validate as unknown, not as a cycle."""
     a = parse_skill("---\nname: a\ndescription: d\ndepends-on: ghost\n---\n")
     assert dependency_cycles([a]) == []
+
+
+# --- regression: the plugin must ship the dispatcher its manifest names -----
+
+def test_claude_code_plugin_ships_the_engine_it_dispatches_to():
+    """hooks.json named scripts/engine.py and no build ever wrote it.
+
+    Every hook in the installed plugin failed with "can't open file", and no
+    test noticed because the check compared the tree to the generator rather
+    than to reality.
+    """
+    import json
+
+    from zyrompts.adapters import build_claude_code, parse_skill
+
+    skills = [parse_skill("---\nname: a\ndescription: d\n---\n# body\n")]
+    result = build_claude_code(skills, "0.1.0", "d")
+
+    assert "adapters/claude-code/scripts/engine.py" in result.files
+    manifest = json.loads(result.files["adapters/claude-code/hooks/hooks.json"])
+    commands = [hook["command"]
+                for event in manifest["hooks"].values()
+                for block in event for hook in block["hooks"]]
+    assert commands, "the manifest declares no hooks"
+    for command in commands:
+        assert "scripts/engine.py" in command, command
+    # The file the command names must be one of the files this build writes.
+    for command in commands:
+        relative = command.split("${CLAUDE_PLUGIN_ROOT}/", 1)[1]
+        relative = relative.split()[0].strip('"\'')
+        assert f"adapters/claude-code/{relative}" in result.files, relative
+
+
+def test_every_skill_path_is_written_under_the_target_tree(tmp_path):
+    """A skill name is data; it must not be able to name a path outside the tree."""
+    from zyrompts.adapters import build_claude_code, parse_skill
+
+    hostile = parse_skill("---\nname: ../../escape\ndescription: d\n---\n# body\n")
+    result = build_claude_code([hostile], "0.1.0", "d")
+    written = result.write(tmp_path)
+
+    base = tmp_path.resolve()
+    for path in written:
+        assert base in path.parents, f"{path} escaped {base}"
+    assert not (tmp_path.parent / "escape").exists()

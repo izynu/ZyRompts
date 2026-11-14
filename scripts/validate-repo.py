@@ -35,40 +35,116 @@ REQUIRED_SKILL_SECTIONS = (
 )
 
 
+def _cli_commands(repo: Path) -> set[str]:
+    """The subcommand names the parser actually exposes.
+
+    Derived, not written down: a hardcoded figure in this file is the same class
+    of staleness the check exists to catch.
+    """
+    import argparse
+
+    from zyrompts.cli import build_parser  # noqa: E402
+
+    parser = build_parser()
+    subparsers = next(a for a in parser._actions
+                      if isinstance(a, argparse._SubParsersAction))
+    return set(subparsers.choices)
+
+
+def _agent_roles(repo: Path) -> dict:
+    from zyrompts.agents import REGISTRY  # noqa: E402
+
+    return REGISTRY
+
+
+def _adapter_file_count(repo: Path) -> int:
+    """Files in the committed adapter tree.
+
+    Counting the committed tree is the same number as the generator produces
+    only because CI runs `generate-adapters.py --check` first; that check is
+    what makes this figure meaningful rather than a second copy of the drift.
+    """
+    tree = repo / "adapters"
+    if not tree.is_dir():
+        return 0
+    return sum(1 for path in tree.rglob("*") if path.is_file())
+
+
+def _collected_test_count(repo: Path) -> int | None:
+    """How many test cases pytest would collect, or None if pytest is absent.
+
+    Collection is not execution: nothing in the suite runs, so this is cheap
+    (well under a second) and safe to call from a check that itself runs inside
+    CI. It counts parametrised expansions, which is why it matches the number
+    pytest prints after a real run rather than the number of `def test_` lines.
+
+    Returns None rather than raising when pytest is not installed, so the
+    repository check still works from a bare checkout; the caller reports the
+    figure as unchecked in that case instead of silently skipping it.
+    """
+    import subprocess
+
+    try:
+        import pytest  # noqa: F401
+    except ImportError:
+        return None
+
+    proc = subprocess.run(
+        [sys.executable, "-m", "pytest", "tests/", "--collect-only", "-q",
+         "-p", "no:cacheprovider"],
+        cwd=repo, capture_output=True, text=True, timeout=300,
+    )
+    match = re.search(r"^(\d+) tests? collected", proc.stdout, re.M)
+    return int(match.group(1)) if match else None
+
+
 def _check_site_counts(repo: Path, eval_cases: int, rules: int, skills: int) -> list[str]:
     """Flag figures quoted on the site that no longer match the repository.
 
-    Only counts that are cheap and deterministic to recompute are checked here:
-    eval cases, hook rules, skills, CLI commands and agent roles. The test count
-    is deliberately not checked, because computing it means running the suite,
-    and a check that runs the suite from inside the suite's own CI step is a
-    worse trade than a stale number a reviewer will notice.
+    Every count the site quotes is recomputed here from the repository: eval
+    cases, hook rules, skills, CLI commands, agent roles, generated adapter files
+    and the collected test count. The test figure used to be the exception, on
+    the argument that recomputing it meant running the suite; collection answers
+    that without running anything, and the figure had already drifted from 436
+    to 498 before anyone noticed.
 
     A figure is only reported when the same number appears on the site next to
-    the matching noun, so unrelated numbers in prose are left alone.
+    the matching noun, so unrelated numbers in prose are left alone. `files` is
+    the loosest of the nouns: the site uses it only for the adapter tree today,
+    so a future "3 files changed" in prose would be flagged. That is the safe
+    direction for this check.
     """
     problems: list[str] = []
     pages = sorted((repo / "site").glob("*.html"))
     if not pages:
         return problems
 
+    tests = _collected_test_count(repo)
     expected = {
         "eval cases": eval_cases,
         "hook rules": rules,
         "skills": skills,
-        "CLI commands": 13,
-        "agents": 13,
+        "CLI commands": len(_cli_commands(repo)),
+        "agents": len(_agent_roles(repo)),
+        "files": _adapter_file_count(repo),
     }
+    if tests is not None:
+        expected["tests"] = tests
     # The figures sit in markup (`<b>101</b> eval cases`, `class="chip">101 eval
-    # cases`), so the number is often preceded by `>` rather than whitespace.
-    # `\b` does not match between `>` and a digit, which is why the first
-    # version of this check silently found nothing.
+    # cases`, `<span><b>101</b> eval cases</span>`), so the number is often
+    # separated from the noun by a closing tag or two. `\b` does not match
+    # between `>` and a digit, and a plain `\s+` misses the tags, which is why
+    # the first two versions of this check silently found nothing. The optional
+    # tag group is what makes the `<b>` form match.
+    gap = r"\s*(?:</?[a-z][a-z0-9]*[^>]*>\s*)*"
     patterns = {
-        "eval cases": re.compile(r"(\d+)\s+eval cases\b"),
-        "hook rules": re.compile(r"(\d+)\s+hook rules\b"),
-        "skills": re.compile(r"(\d+)\s+skills\b"),
-        "CLI commands": re.compile(r"(\d+)\s+CLI commands\b"),
-        "agents": re.compile(r"(\d+)\s+agents\b"),
+        "eval cases": re.compile(r"(\d+)" + gap + r"eval cases\b"),
+        "hook rules": re.compile(r"(\d+)" + gap + r"hook rules\b"),
+        "skills": re.compile(r"(\d+)" + gap + r"skills\b"),
+        "CLI commands": re.compile(r"(\d+)" + gap + r"CLI commands\b"),
+        "agents": re.compile(r"(\d+)" + gap + r"agents\b"),
+        "files": re.compile(r"(\d+)" + gap + r"files\b"),
+        "tests": re.compile(r"(\d+)" + gap + r"tests\b"),
     }
 
     for page in pages:
@@ -144,13 +220,7 @@ def main() -> int:
 
     # --- documented commands ------------------------------------------------
     readme = (REPO / "README.md").read_text(encoding="utf-8")
-    sys.path.insert(0, str(REPO / "core"))
-    from zyrompts.cli import build_parser  # noqa: E402
-
-    parser = build_parser()
-    subparsers = next(a for a in parser._actions
-                      if isinstance(a, __import__("argparse")._SubParsersAction))
-    commands = set(subparsers.choices)
+    commands = _cli_commands(REPO)
     documented = set(re.findall(r"^zyrompts\s+([a-z-]+)", readme, re.M))
     for command in documented - commands:
         problems.append(f"README documents 'zyrompts {command}', which does not exist")

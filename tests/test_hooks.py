@@ -200,3 +200,46 @@ def test_fragment_for_returns_none_when_criteria_do_not_match():
                 action={"type": "inject_context", "text": ["x"]},
                 criteria={"match": [r"\bzzz\b"]})
     assert fragment_for({"prompt": "hello"}, rule) is None
+
+
+# --- regression: the two bypass checks must agree ---------------------------
+#
+# `handlers._is_bypass` has always treated `/` as a slash command; the engine's
+# `_bypassed` did not, so an action rule without `non_slash` fired on every
+# slash command while a handler-backed rule stayed silent. The architecture doc
+# says the two cannot diverge, so this pins the engine to the handler.
+
+def test_slash_prefix_bypasses_an_action_rule_without_non_slash():
+    rule = Rule(id="t", event="UserPromptSubmit",
+                action={"type": "inject_context", "text": ["FIRED"]},
+                criteria={"match": [r"\bhello\b"], "flags": ["ignorecase"]})
+    assert fragment_for({"prompt": "/hello"}, rule) is None
+    assert fragment_for({"prompt": "hello"}, rule) == "FIRED"
+
+
+def test_star_and_hash_prefixes_still_bypass():
+    rule = Rule(id="t", event="UserPromptSubmit",
+                action={"type": "inject_context", "text": ["FIRED"]},
+                criteria={"match": [r"\bhello\b"], "flags": ["ignorecase"]})
+    for prompt in ("*hello", "#hello", "  /hello"):
+        assert fragment_for({"prompt": prompt}, rule) is None, prompt
+
+
+# --- regression: a typo in match_target used to be silent -------------------
+
+def test_validate_rule_rejects_an_unknown_match_target():
+    errors = validate_rule({
+        "id": "x", "event": "UserPromptSubmit",
+        "criteria": {"match_target": "promt", "match": ["a"]},
+        "action": {"type": "inject_context", "text": ["t"]},
+    })
+    assert any("match_target" in error for error in errors)
+
+
+def test_validate_rule_accepts_a_known_match_target():
+    errors = validate_rule({
+        "id": "x", "event": "UserPromptSubmit",
+        "criteria": {"match_target": "prompt", "match": ["a"]},
+        "action": {"type": "inject_context", "text": ["t"]},
+    })
+    assert errors == []

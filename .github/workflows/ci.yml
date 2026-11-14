@@ -107,13 +107,29 @@ jobs:
           secret="ghp_$(head -c 40 /dev/zero | tr '\0' 'a')"
           out=$(python -m zyrompts redact "token: $secret")
           echo "$out"
-          echo "$out" | grep -q "$secret" \
-            && { echo "FAIL: credential survived redaction"; exit 1; }
+          # Positive assertion first: an exit-0 CLI that printed nothing would
+          # otherwise satisfy the negative check below without redacting.
+          # The output is pretty-printed JSON, so the kind appears on its own
+          # line; match the two facts separately rather than one inline shape.
+          echo "$out" | grep -q '"kinds"' \
+            || { echo "FAIL: redaction reported no kinds field"; exit 1; }
+          echo "$out" | grep -q 'github_token' \
+            || { echo "FAIL: redaction did not identify the credential"; exit 1; }
+          if echo "$out" | grep -q "$secret"; then
+            echo "FAIL: credential survived redaction"; exit 1
+          fi
           echo "credential redacted"
 
       - name: Hook dispatcher never crashes the prompt
         run: |
           set -eu
+          # Exit status alone is not enough: a dispatcher whose rules silently
+          # loaded nothing also exits 0. Assert that a real prompt still
+          # produces context, then that the bad inputs do not crash.
+          out=$(echo '{"prompt":"add a rate limiter"}' | python -m zyrompts.hooks UserPromptSubmit)
+          echo "$out"
+          echo "$out" | grep -q 'hookSpecificOutput' \
+            || { echo "FAIL: dispatcher produced no context for a normal prompt"; exit 1; }
           echo '{not json' | python -m zyrompts.hooks UserPromptSubmit
           echo '' | python -m zyrompts.hooks UserPromptSubmit
           echo '{}' | python -m zyrompts.hooks NoSuchEvent

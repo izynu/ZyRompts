@@ -37,22 +37,90 @@ path is normalised with `posixpath.normpath` before the check.
 allow_commands=["*"])` returned ALLOW for `rm -rf /`. Hard denials are now
 evaluated before either list and cannot be configured away.
 
-**Redaction missed six credential shapes.** Fine-grained GitHub PATs
+**Redaction missed five credential shapes.** Fine-grained GitHub PATs
 (`github_pat_…`), AWS secret access keys, Stripe keys (`sk_live_…`), Google API
 keys (`AIza…`) and npm tokens (`npm_…`) passed through verbatim.
+
+**`..` after a home root folded back to a relative path.** The normaliser
+substituted a relative sentinel for `~`, so `normpath` collapsed `rm -rf ~/..`
+to `.`, which read as an ordinary directory and was allowed under every
+autonomy level. The sentinel is absolute now, so `~/..` folds to `/`.
+
+**An allow list lifted the injection floor.** `PolicyConfig` returned ALLOW for
+an `allow_tools` or `allow_commands` match before the floor was applied, so a
+configuration that trusted a tool also trusted whatever content arrived with
+it. Both allow paths now run through the floor.
+
+**The generated Claude Code plugin could not run its own hooks.** `hooks.json`
+dispatched to `scripts/engine.py`, which no build target ever wrote, so every
+hook in the installed plugin failed with "can't open file". The generator now
+emits the dispatcher and a test asserts that the path a manifest names is a
+path the same build writes.
+
+**An adapter could write outside its tree.** A skill whose frontmatter named
+`../../escape` produced a path outside the target directory. `AdapterResult.write`
+resolves every path and refuses one that leaves the root.
+
+**A corrupt state file was destroyed by the next save.** `StateStore.load`
+swallowed a parse error and returned an empty state, so the following `save()`
+overwrote the only copy. The unreadable file is moved aside once now. A newer
+schema still raises, because a readable file the code does not understand is a
+different problem.
+
+**The event log wrote credentials to disk verbatim.** `StateStore.log` is where
+a session's own words are kept, and a goal or a note routinely quotes a command
+or a config line. Every logged value is redacted now, including nested lists and
+dicts.
+
+**A malformed eval dataset reported a pass.** An entirely unparsable dataset
+loaded zero cases and printed `0/0`, and a dataset whose name matched no
+evaluator returned an empty report: both read as success. Load problems are
+reported per line, `EvalReport.is_clean()` is false for an empty suite, and
+`zyrompts eval` exits 1.
+
+**`Verdict.redacted_args` was declared and never assigned.** A verdict is
+printed and often logged, and a tool call routinely carries a token. `evaluate`
+now attaches the redacted arguments whenever the call's arguments held a
+credential, and omits the field when they did not.
+
+**A typo in `match_target` was silent.** `validate_rule` rejects an unknown
+target now, naming the legal ones. At runtime `target_value` still returns `""`
+so a rule that slipped through stays inert rather than matching the wrong field.
+
+**The two bypass checks disagreed on `/`.** `handlers._is_bypass` treated a
+leading `/` as a slash command; the engine's `_bypassed` did not, so an action
+rule without `non_slash` fired on every slash command. The engine matches the
+handler now, as the architecture document always claimed.
+
+**The site's count check missed the markup form.** `<b>101</b> eval cases` did
+not match, and the agent count was hardcoded. Both are derived now.
+
+**Two CI security steps passed vacuously.** The redaction step was a negative
+grep, so a CLI that exited 0 with no output passed it; the dispatcher step
+asserted only the exit status, so a dispatcher with no rules loaded also passed.
+Both assert on the printed output now.
+
+**The site's link checker ignored CSS `url()`.** A deleted font shipped broken
+with no error. Every `url()` in every stylesheet is resolved now.
 
 ### Added
 
 - 118 regression tests covering each bypass spelling above, plus the credential
   shapes, so none of them can return silently.
+- 58 further tests for the second audit: home-root `..` spellings, the allow-list
+  floor, state quarantine and log redaction, the eval harness's failure modes,
+  the plugin dispatcher, adapter path containment, slash-prefix parity and
+  `match_target` validation.
 - 19 policy eval cases (27 -> 46) and 10 redaction tests (9 shapes and one
   false-positive guard).
 - `scripts/validate-repo.py` now checks the counts the site quotes (eval cases,
   rules, skills, commands, agent roles) against the repository, so a stale
-  figure fails CI instead of shipping.
+  figure fails CI instead of shipping. The command and agent counts are derived
+  from the code, not written down.
 - `ZYROMPTS_ROOT` is documented in the README install section. The rules,
   skills and datasets are read from the repository rather than the installed
-  package, so a non-editable install needs it.
+  package, so a non-editable install needs it, and every data-reading command
+  now prints the same hint when the data is missing.
 
 ### Changed
 
@@ -99,7 +167,7 @@ and an eval harness.
 - `adapters`: pure renderers for Claude Code, Gemini, Copilot, Codex and
   OpenCode, plus dependency-graph cycle detection.
 - `evals`: JSONL datasets with four evaluators and per-case failure isolation.
-- `decorum`: the behaviour policy and a deterministic checker for the three
+- `decorum`: the behaviour policy and a deterministic checker for the five
   mechanical failures.
 - `telemetry`: tier-priced cost and duration accounting.
 - `cli`: 13 commands, each usable as a gate via its exit code.
@@ -131,6 +199,7 @@ Defects found by writing the tests first:
 - The decorum evidence check accepted "all tests pass" as proof of itself.
 - Handler-backed rules ignored bypass prefixes that the engine honoured.
 - An unknown `match_target` silently matched nothing instead of being reported.
+  `validate_rule` now rejects it and names the legal targets.
 - `zyrompts policy "rm -rf /" --autonomy yolo` returned **allow**, because
   argparse's default `"{}"` is truthy and the bare-command path never ran.
 - `critique_plan` graded structural headings ("Out of scope", "Rollback") as

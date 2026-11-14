@@ -172,6 +172,15 @@ def validate_rule(row: dict, seen_ids: set[str] | None = None) -> list[str]:
 
     criteria = row.get("criteria")
     if criteria:
+        # A typo in `match_target` used to match nothing and say nothing, so a
+        # rule looked installed and silently never fired. `target_value` returns
+        # "" for an unknown target to stay inert at runtime; this is where the
+        # author is told about it.
+        match_target = criteria.get("match_target")
+        if match_target is not None and match_target not in _TARGET_KEYS:
+            errors.append(
+                f"unknown match_target {match_target!r}; "
+                f"expected one of {sorted(_TARGET_KEYS)}")
         flags = _compile_flags(criteria.get("flags"))
         for key in ("match", "exclude"):
             for pattern in criteria.get(key, []) or []:
@@ -290,11 +299,20 @@ def target_value(data: dict, match_target: str) -> str:
 
 
 def _bypassed(value: str, match_target: str, bypass: str) -> bool:
+    """True when the prompt is one the engine must stay silent on.
+
+    `*` skips, `#` memorises, and harness machine events are not the user
+    speaking. A leading `/` is a slash command: the operator is invoking a
+    command, not asking for a nudge, so it is silent here too. This used to be
+    missing, which meant an action-backed rule without `non_slash` fired on
+    every slash command while `handlers._is_bypass` (which has always tested
+    `/`) did not. The two checks are supposed to agree.
+    """
     if bypass == "none" or match_target != "prompt":
         return False
     stripped = value.lstrip()
     return (not stripped or stripped.startswith("*") or stripped.startswith("#")
-            or is_machine_event(stripped))
+            or stripped.startswith("/") or is_machine_event(stripped))
 
 
 def _passes_criteria(data: dict, criteria: dict) -> bool:

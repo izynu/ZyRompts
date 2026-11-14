@@ -82,8 +82,8 @@ blocks the user's prompt, which is worse than a hook that does nothing.
 **Bypass is a contract, not a suggestion.** `*` skips, `#` memorises, `/` is a
 slash command, and harness machine events (`<task-notification>`,
 `<system-reminder>`, `<command-name>`, `<local-command-stdout>`) are all silent.
-`handlers.py` mirrors the engine's own check so a handler-backed rule cannot
-diverge from an action-backed one.
+`handlers.py` mirrors the engine's own check, and `tests/test_hooks.py` pins
+both, so a handler-backed rule cannot diverge from an action-backed one.
 
 ### 4. Adapters
 
@@ -99,13 +99,13 @@ INTAKE -> CLARIFY -> RESEARCH -> SPECIFY -> PLAN -> CRITIQUE -> APPROVE
        -> IMPLEMENT -> REVIEW -> FIX -> VERIFY -> ARCHIVE -> DONE
 ```
 
-Four tiers select a prefix of that chain:
+Four tiers select a subsequence of that chain:
 
 | Tier | Phases | Selected when |
 |---|---|---|
 | DIRECT | INTAKE, DONE | trivial ask, or a question about code |
 | LIGHT | INTAKE, IMPLEMENT, VERIFY, DONE | small, contained change |
-| PLANNED | + SPECIFY, PLAN, CRITIQUE, APPROVE | moderate build/refactor |
+| PLANNED | INTAKE, CLARIFY, SPECIFY, PLAN, CRITIQUE, APPROVE, IMPLEMENT, REVIEW, VERIFY, DONE | moderate build/refactor |
 | FULL | all phases | large, wide, or architectural |
 
 The tier is a **floor**, never a ceiling: the classifier raises a tier on
@@ -114,10 +114,12 @@ the workflow stays blocked until the gate is met instead of skipping forward.
 
 ### 6. State
 
-`StateStore` writes `.zyrompts/project.json` atomically (`mkstemp` + `fsync` +
-`os.replace`) and appends to `.zyrompts/events.jsonl`. The state file carries a
-`schema_version`; loading a newer version raises rather than silently dropping
-fields the running code does not understand.
+`StateStore` writes `.zyrompts/state/project.json` atomically (`mkstemp` +
+`fsync` + `os.replace`) and appends to `.zyrompts/state/events.jsonl`. The state
+file carries a `version`; loading a newer version raises rather than silently
+dropping fields the running code does not understand. Unparsable JSON degrades
+to a fresh state, with the broken file moved aside so the next save cannot
+overwrite the only copy.
 
 ## Data flow, end to end
 

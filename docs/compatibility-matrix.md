@@ -33,9 +33,9 @@ renderer emits only what that platform reads.
 | `disable-model-invocation` | yes | dropped | dropped | dropped |
 | `depends-on` | not emitted | not emitted | not emitted | not emitted |
 
-`depends-on` is validated at build time (unknown name, cycle) and used to order
-the Codex index; it is not emitted into platform frontmatter because no
-platform reads it.
+`depends-on` is validated at build time (unknown name, cycle) and is not emitted
+into platform frontmatter, because no platform reads it. The Codex index lists
+skills in load order (alphabetical), so the dependency graph does not reorder it.
 
 ## Naming
 

@@ -163,3 +163,63 @@ def test_project_state_to_from_dict_is_stable():
 def test_from_dict_ignores_unknown_fields():
     state = ProjectState.from_dict({"version": 1, "goal": "g", "future_field": 1})
     assert state.goal == "g"
+
+
+# --- regression: a corrupt file must not be destroyed by the next save -------
+
+def test_corrupt_state_is_quarantined_not_overwritten(tmp_path):
+    """Degrading to a fresh state must not silently discard the old one."""
+    store = StateStore(tmp_path)
+    store.add_task("keep me")
+    store.path.write_text("{not json", encoding="utf-8")
+
+    reopened = StateStore(tmp_path)
+    assert reopened.state.tasks == [], "a fresh state is the documented fallback"
+    assert reopened.corrupt_backup is not None
+    assert reopened.corrupt_backup.is_file()
+    assert reopened.corrupt_backup.read_text(encoding="utf-8") == "{not json"
+
+    # The next save writes a new project.json and must leave the backup alone.
+    reopened.add_task("new work")
+    assert reopened.corrupt_backup.is_file()
+    assert json.loads(reopened.path.read_text(encoding="utf-8"))["tasks"][0]["title"] == "new work"
+
+
+def test_newer_schema_refuses_rather_than_quarantines(tmp_path):
+    """A readable but newer file is not corrupt: refuse, do not replace it."""
+    store = StateStore(tmp_path)
+    store.set_goal("important")
+    data = json.loads(store.path.read_text(encoding="utf-8"))
+    data["version"] = STATE_VERSION + 1
+    store.path.write_text(json.dumps(data), encoding="utf-8")
+
+    with pytest.raises(ValueError):
+        StateStore(tmp_path)
+    # The file the running code cannot read is still on disk, untouched.
+    assert store.path.is_file()
+
+
+# --- regression: the event log is a place secrets end up ---------------------
+
+def test_event_log_redacts_credential_shaped_values(tmp_path):
+    store = StateStore(tmp_path)
+    token = "ghp_" + "a" * 36
+    store.set_goal(f"deploy using {token}")
+    store.log("note", detail=f"export TOKEN={token}")
+
+    text = store.log_path.read_text(encoding="utf-8")
+    assert token not in text
+    assert "[REDACTED]" in text
+    # Redaction must not eat the rest of the entry.
+    assert "deploy using" in text
+    assert "export TOKEN=" in text
+
+
+def test_event_log_redacts_nested_values(tmp_path):
+    store = StateStore(tmp_path)
+    token = "ghp_" + "b" * 36
+    store.log("decision", evidence=[f"saw {token}"], meta={"header": f"Bearer {token}"})
+
+    text = store.log_path.read_text(encoding="utf-8")
+    assert token not in text
+    assert text.count("[REDACTED]") == 2

@@ -14,7 +14,7 @@ most reviews:
 git clone <your-fork> ZyRompts
 cd ZyRompts
 python3 -m pip install -e core          # optional; PYTHONPATH=core works too
-python3 -m pytest tests/ -q             # 317 tests
+python3 -m pytest tests/ -q             # the full suite
 PYTHONPATH=core python3 -m zyrompts validate
 PYTHONPATH=core python3 -m zyrompts eval
 ```
@@ -39,8 +39,10 @@ trigger, the injected text, and a priority. Add a case to `evals/datasets/` if
 the rule's trigger is subtle. No Python change.
 
 **A new skill.** A directory under `skills/<name>/` with a `SKILL.md` carrying
-every required section: Purpose, Activation, Procedure, Rules, Failure handling,
-Evaluation cases, Version. Declare `depends-on` in the frontmatter. Then run
+the five sections the validator enforces: Purpose, Procedure, Failure handling,
+Evaluation cases, Version. Activation, Rules, Input/Output and the reference
+tables are expected but optional, so `scripts/validate-repo.py` does not fail on
+a skill that leaves them out. Declare `depends-on` in the frontmatter. Then run
 `generate-adapters.py` so every platform gets it.
 
 **A new policy rule.** A pattern in `policy.py` plus a test in

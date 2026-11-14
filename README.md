@@ -69,7 +69,8 @@ ls -la                   allow  readonly-command
 ```
 
 Content that came from tool output or a web page is capped at ASK even under
-YOLO. Untrusted content cannot escalate.
+YOLO, for every tool and through every allow list. Untrusted content cannot
+escalate.
 
 **Keeps review independent.** An agent never reviews its own output, and the
 orchestrator never schedules a writer and its reviewer in the same batch.
@@ -78,7 +79,7 @@ orchestrator never schedules a writer and its reviewer in the same batch.
 
 ```
 skills/<name>/SKILL.md     canonical
-  -> adapters/claude-code/  plugin.json + hooks.json + skills/
+  -> adapters/claude-code/  plugin.json + hooks.json + scripts/engine.py + skills/
   -> adapters/gemini/       .gemini/skills/zy-<name>/ + skills.json
   -> adapters/copilot/      .github/skills/zy-<name>/
   -> adapters/codex/        AGENTS.md index

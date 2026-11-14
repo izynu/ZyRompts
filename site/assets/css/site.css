@@ -50,7 +50,7 @@
   --bg-soft: #f4f7f8;
   --fg: #0d1618;
   --fg-2: #374c52;
-  --muted: #5b7177;
+  --muted: #465a60;
   --line: rgba(13, 22, 24, 0.12);
   --line-strong: rgba(13, 22, 24, 0.24);
 
@@ -251,6 +251,17 @@ a:hover {
   border-radius: 4px;
 }
 
+/* The light accent is 2.95:1 against the dark code surface, under the 3:1
+   minimum for a non-text indicator, so a focused link inside a terminal block
+   lost its ring. The bright code-key tone is 10.7:1 there and is the same hue,
+   so the indicator stays visible without introducing a second accent. */
+.term :focus-visible,
+.term-bar :focus-visible,
+pre :focus-visible,
+code :focus-visible {
+  outline-color: var(--code-key);
+}
+
 h1,
 h2,
 h3,
@@ -426,6 +437,9 @@ samp {
   opacity: 1;
 }
 
+/* Card headings are h2 on the 404 page (the only h1 there is the page title)
+   and h3 inside sections elsewhere. Both take the same size. */
+.card h2,
 .card h3 {
   font-size: 1.1rem;
 }
@@ -1381,7 +1395,11 @@ tbody tr:hover td {
   max-width: 34ch;
 }
 
-.footer-col h4 {
+/* The footer is a landmark whose column labels are headings, not body text.
+   They were h4 under an h2 page heading, which skipped h3 for a screen reader;
+   h2 with the label styling keeps the visual size and the document order
+   correct. */
+.footer-col .footer-label {
   font-family: var(--mono);
   font-size: var(--fs-xs);
   font-weight: 500;

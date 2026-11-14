@@ -11,8 +11,7 @@
 Report privately, not in a public issue.
 
 - Use GitHub's private vulnerability reporting on this repository
-  (Security -> Report a vulnerability), or
-- email the maintainers listed in `CODEOWNERS`.
+  (Security -> Report a vulnerability).
 
 Include: the version, the configuration, the exact steps to reproduce, and the
 impact you believe it has. A proof of concept helps; a weaponised one does not

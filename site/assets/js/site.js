@@ -194,6 +194,17 @@
     }
   }
 
+  function systemTheme() {
+    return window.matchMedia &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light";
+  }
+
+  // The label has to describe what the button will do, which depends on the
+  // theme actually in effect, not on whether a choice was stored. With no
+  // stored choice under a dark system preference, this used to say "Switch to
+  // dark theme": the label named the current theme instead of the next one.
   function applyTheme(theme) {
     if (theme === "dark" || theme === "light") {
       root.setAttribute("data-theme", theme);
@@ -201,9 +212,10 @@
       root.removeAttribute("data-theme");
     }
     if (themeButton) {
+      var effective = theme === "dark" || theme === "light" ? theme : systemTheme();
       themeButton.setAttribute(
         "aria-label",
-        theme === "dark" ? "Switch to light theme" : "Switch to dark theme"
+        effective === "dark" ? "Switch to light theme" : "Switch to dark theme"
       );
     }
   }
@@ -212,11 +224,7 @@
     applyTheme(storedTheme());
     themeButton.addEventListener("click", function () {
       var current =
-        root.getAttribute("data-theme") ||
-        (window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light");
+        root.getAttribute("data-theme") || systemTheme();
       var next = current === "dark" ? "light" : "dark";
       applyTheme(next);
       try {

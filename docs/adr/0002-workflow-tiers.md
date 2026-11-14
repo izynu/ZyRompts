@@ -21,8 +21,11 @@ Four tiers, chosen by evidence, with a floor that only ever raises.
 |---|---|
 | DIRECT | INTAKE, DONE |
 | LIGHT | INTAKE, IMPLEMENT, VERIFY, DONE |
-| PLANNED | + SPECIFY, PLAN, CRITIQUE, APPROVE |
+| PLANNED | INTAKE, CLARIFY, SPECIFY, PLAN, CRITIQUE, APPROVE, IMPLEMENT, REVIEW, VERIFY, DONE |
 | FULL | all 13 |
+
+Each tier is a subsequence of the full chain, not a prefix: DIRECT ends at DONE
+and LIGHT skips RESEARCH, SPECIFY, PLAN, CRITIQUE and APPROVE.
 
 Two floors, each added after the first version got it wrong:
 
@@ -30,7 +33,7 @@ Two floors, each added after the first version got it wrong:
    "fix the bug" has no file, no error, no identifier. It is not a one-line
    edit; it is an underspecified request.
 2. **A terse request with wide scope is not trivial.** "migrate the monolith to
-   microservices" is ten words and a quarter of work. The architectural cues
+   microservices" is five words and a quarter of work. The architectural cues
    raise complexity regardless of length.
 
 The tier is a floor, not a ceiling: `choose_workflow` computes the tier from

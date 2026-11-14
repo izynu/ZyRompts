@@ -91,11 +91,11 @@ loop behaviour itself.
 
 **What ZyRompts took.** The whole cycle, with the bound moved into code:
 `workflow.loop_critique` (3) and `loop_fix` (2) are counters, and exceeding one
-blocks the phase rather than looping. `review.py` requires refutation before a
-finding is reported, grades CONFIRMED/UNVERIFIED, and adds the deterministic
-checks (missing affected files, missing verification, non-existent paths). The
-re-read-from-disk rule is honoured by `critique_plan` operating on the text it is
-given, never on a cached copy.
+advances to the next gate (APPROVE and VERIFY respectively) instead of looping.
+`review.py` requires refutation before a finding is reported, grades
+CONFIRMED/UNVERIFIED, and adds the deterministic checks (missing affected files,
+missing verification, non-existent paths). The re-read-from-disk rule is honoured
+by `critique_plan` operating on the text it is given, never on a cached copy.
 
 ---
 

@@ -14,6 +14,8 @@ and a single-agent loop that both writes and reviews converges on "looks good".
 Make independence a property of the orchestrator, not of the instructions.
 
 - Every `AgentSpec` declares `can_review`: the roles whose output it may judge.
+  A role that names no reviewer is judged by the fallback role named in
+  Consequences below.
 - `Orchestrator.review_pairs()` returns a `(producer, reviewer)` pair for every
   completed delegation, choosing a reviewer that is **not** the producer's role.
 - `next_batch()` never schedules a writer concurrently with anything else: a

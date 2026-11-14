@@ -42,6 +42,20 @@ def repo_root() -> Path:
     return Path(__file__).resolve().parent.parent.parent
 
 
+def _missing_data_hint(root: Path) -> str:
+    """Explain how to point the CLI at a checkout when the data is absent.
+
+    The distribution ships code only: rules, skills and datasets live in the
+    repository. An installed package therefore resolves `repo_root()` to a path
+    with no data in it, and every data-reading command fails. One message that
+    names the knob is better than five commands failing differently.
+    """
+    return ("\nThe rules, skills and datasets are read from a repository "
+            "checkout, not from the installed package. Point the CLI at one:\n"
+            f"  export ZYROMPTS_ROOT=/path/to/ZyRompts\n"
+            f"(resolved root was {root})")
+
+
 def _print(data) -> None:
     if isinstance(data, str):
         print(data)
@@ -131,6 +145,7 @@ def cmd_adapters(args) -> int:
     skills = load_canonical_skills(root / "skills")
     if not skills:
         print("no canonical skills found", file=sys.stderr)
+        print(_missing_data_hint(root), file=sys.stderr)
         return 2
     version = (root / "VERSION").read_text(encoding="utf-8").strip() if (root / "VERSION").is_file() else __version__
     description = "Modular multi-agent workflow framework for AI coding agents"
@@ -190,10 +205,7 @@ def cmd_validate(args) -> int:
         # path with no data in it. Say which knob fixes that instead of leaving
         # the reader with a list of missing files and no next step.
         if not (root / "hooks" / "rules").is_dir():
-            print("\nThis looks like an installed package rather than a clone. "
-                  "The rules, skills and datasets are read from the repository, "
-                  "so point ZYROMPTS_ROOT at a checkout:\n"
-                  "  export ZYROMPTS_ROOT=/path/to/ZyRompts")
+            print(_missing_data_hint(root))
         return 1
     print(f"ok: {len(rule_set.rules)} rules, {len(skills)} skills")
     return 0
@@ -204,10 +216,19 @@ def cmd_eval(args) -> int:
     reports = run_all(root / "evals" / "datasets")
     if not reports:
         print("no datasets found", file=sys.stderr)
+        print(_missing_data_hint(root), file=sys.stderr)
         return 2
     failed = 0
     for report in reports:
         print(f"{report.suite}: {report.passed}/{report.total} ({report.pass_rate:.0%})")
+        # A dataset that parsed to zero cases used to print `0/0 (0%)` and exit
+        # 0. A suite that measures nothing is not a passing suite.
+        if not report.results and not report.problems:
+            print(f"  FAIL {report.suite}: no cases loaded", file=sys.stderr)
+            failed += 1
+        for problem in report.problems:
+            print(f"  FAIL {report.suite}: {problem}", file=sys.stderr)
+            failed += 1
         for failure in report.failures():
             print(f"  FAIL {failure.case_id}: {'; '.join(failure.notes)}")
         failed += len(report.failures())

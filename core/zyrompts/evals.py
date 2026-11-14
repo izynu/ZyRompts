@@ -43,6 +43,9 @@ class CaseResult:
 class EvalReport:
     suite: str
     results: list[CaseResult] = field(default_factory=list)
+    # Lines that could not be loaded at all. Kept separate from `results` so a
+    # suite of zero parseable cases cannot report a clean 0/0 pass.
+    problems: list[str] = field(default_factory=list)
 
     @property
     def passed(self) -> int:
@@ -59,23 +62,34 @@ class EvalReport:
     def failures(self) -> list[CaseResult]:
         return [r for r in self.results if not r.passed]
 
+    def is_clean(self) -> bool:
+        """True only when the suite ran at least one case and nothing failed.
+
+        A suite with no cases and no problems is a missing dataset, not a pass;
+        a suite with problems is a broken dataset. Both used to read as 100%.
+        """
+        return bool(self.results) and not self.failures() and not self.problems
+
     def to_dict(self) -> dict:
         return {
             "suite": self.suite,
             "passed": self.passed,
             "total": self.total,
             "pass_rate": round(self.pass_rate, 3),
+            "problems": self.problems,
             "results": [r.to_dict() for r in self.results],
         }
 
     def to_markdown(self) -> str:
         lines = [f"# Eval: {self.suite}", "",
                  f"Pass rate: {self.passed}/{self.total} ({self.pass_rate:.0%})", ""]
+        for problem in self.problems:
+            lines.append(f"- dataset problem: {problem}")
         for failure in self.failures():
             lines.append(f"- {failure.case_id}: expected {failure.expected}, got {failure.actual}")
             for note in failure.notes:
                 lines.append(f"    {note}")
-        if not self.failures():
+        if not self.failures() and not self.problems:
             lines.append("All cases passed.")
         return "\n".join(lines) + "\n"
 
@@ -153,25 +167,46 @@ EVALUATORS = {
 }
 
 
-def load_dataset(path: Path) -> list[dict]:
-    cases = []
-    for line in Path(path).read_text(encoding="utf-8").splitlines():
+def load_dataset(path: Path) -> tuple[list[dict], list[str]]:
+    """Return (cases, problems).
+
+    A line that will not parse is reported rather than skipped: a dataset that
+    is entirely malformed used to load zero cases, and a suite with zero cases
+    reports `0/0` and a 100% pass rate. That is the worst possible failure
+    mode for an eval harness, because it reads as success.
+    """
+    cases: list[dict] = []
+    problems: list[str] = []
+    for number, line in enumerate(Path(path).read_text(encoding="utf-8").splitlines(), 1):
         line = line.strip()
         if not line or line.startswith("#"):
             continue
         try:
-            cases.append(json.loads(line))
-        except json.JSONDecodeError:
+            case = json.loads(line)
+        except json.JSONDecodeError as exc:
+            problems.append(f"{Path(path).name}:{number}: invalid JSON ({exc.msg})")
             continue
-    return cases
+        if not isinstance(case, dict):
+            problems.append(f"{Path(path).name}:{number}: case is not an object")
+            continue
+        cases.append(case)
+    return cases, problems
 
 
 def run_suite(name: str, dataset_path: Path) -> EvalReport:
-    evaluator = EVALUATORS.get(name)
     report = EvalReport(suite=name)
+    # Load before looking up the evaluator: a dataset whose filename does not
+    # match an evaluator name used to return an empty report with no problem
+    # recorded, which reads as a passing suite of zero cases.
+    cases, problems = load_dataset(dataset_path)
+    report.problems = problems
+    evaluator = EVALUATORS.get(name)
     if evaluator is None:
+        report.problems.insert(
+            0, f"{Path(dataset_path).name}: no evaluator named {name!r}; "
+               f"known: {', '.join(sorted(EVALUATORS))}")
         return report
-    for case in load_dataset(dataset_path):
+    for case in cases:
         case_id = case.get("id", "?") if isinstance(case, dict) else "?"
         try:
             report.results.append(evaluator(case))

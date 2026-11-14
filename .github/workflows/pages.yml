@@ -12,6 +12,9 @@ on:
     paths:
       - "site/**"
       - ".github/workflows/pages.yml"
+      # The link checker is the only gate before deploy, so a change to it has
+      # to run the workflow: otherwise a broken checker is never exercised.
+      - "scripts/check-site.py"
   workflow_dispatch:
 
 permissions:

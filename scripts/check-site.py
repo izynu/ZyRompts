@@ -15,6 +15,7 @@ of other people's servers.
 
 from __future__ import annotations
 
+import re
 import sys
 from html.parser import HTMLParser
 from pathlib import Path
@@ -66,6 +67,30 @@ class PageScanner(HTMLParser):
         super().close()
         for tag, position in self._open:
             self.errors.append(f"<{tag}> opened at line {position[0]} is never closed")
+
+
+def _check_stylesheets(root: Path) -> list[str]:
+    """Resolve every `url(...)` in every stylesheet under the site.
+
+    The HTML pass only sees `href` and `src`, so the self-hosted fonts the CSS
+    points at were unchecked: deleting one shipped a page that rendered in a
+    fallback face with no error anywhere. A `url()` is a reference like any
+    other and is checked the same way.
+    """
+    problems: list[str] = []
+    pattern = re.compile(r"""url\(\s*['"]?([^'")]+)""")
+    for sheet in sorted(root.rglob("*.css")):
+        text = sheet.read_text(encoding="utf-8")
+        where = sheet.relative_to(root)
+        for match in pattern.finditer(text):
+            ref = match.group(1).strip()
+            if ref.startswith(("data:", "http://", "https://", "//", "#")):
+                continue
+            target = (sheet.parent / unquote(urlsplit(ref).path)).resolve()
+            if not target.exists():
+                line = text[:match.start()].count("\n") + 1
+                problems.append(f"{where}:{line}: url() points at missing file '{ref}'")
+    return problems
 
 
 def main(argv: list[str]) -> int:
@@ -135,6 +160,8 @@ def main(argv: list[str]) -> int:
                         f"{where}: '{parts.path}' has no element with id "
                         f"'{parts.fragment}'"
                     )
+
+    problems.extend(_check_stylesheets(root))
 
     if problems:
         for problem in problems:
