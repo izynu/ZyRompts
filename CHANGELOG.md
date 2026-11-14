@@ -205,5 +205,5 @@ Defects found by writing the tests first:
 - `critique_plan` graded structural headings ("Out of scope", "Rollback") as
   chapters, so a correct plan failed its own critique.
 
-[Unreleased]: https://github.com/<owner>/ZyRompts/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/<owner>/ZyRompts/releases/tag/v0.1.0
+[Unreleased]: https://github.com/izynu/ZyRompts/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/izynu/ZyRompts/releases/tag/v0.1.0

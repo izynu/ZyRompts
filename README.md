@@ -91,7 +91,7 @@ skills/<name>/SKILL.md     canonical
 Requires Python 3.9 or newer. No third-party dependencies.
 
 ```bash
-git clone <your-fork> ZyRompts
+git clone https://github.com/izynu/ZyRompts.git ZyRompts
 cd ZyRompts
 
 # Run it in place, no install:

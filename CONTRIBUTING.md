@@ -11,7 +11,7 @@ most reviews:
 ## Setup
 
 ```bash
-git clone <your-fork> ZyRompts
+git clone https://github.com/izynu/ZyRompts.git ZyRompts
 cd ZyRompts
 python3 -m pip install -e core          # optional; PYTHONPATH=core works too
 python3 -m pytest tests/ -q             # the full suite
