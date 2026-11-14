@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "zyrompts"
 version = "0.1.0"
 description = "Modular multi-agent workflow framework for AI coding agents"
-readme = "../README.md"
+readme = { text = "Deterministic workflow controls for AI coding agents: one canonical skill library, rendered to Claude Code, Gemini, Copilot, Codex and OpenCode.", content-type = "text/markdown" }
 requires-python = ">=3.9"
 license = { text = "MIT" }
 authors = [{ name = "ZyRompts contributors" }]
