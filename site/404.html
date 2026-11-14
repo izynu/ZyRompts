@@ -6,6 +6,11 @@
 <title>Page Not Found</title>
 <meta name="robots" content="noindex">
 <meta name="color-scheme" content="light dark">
+<!-- This page is served for any missing path, so a relative asset URL would
+     resolve against the path the reader typed rather than the site root.
+     GitHub Pages mounts a project site at /<repo>/; on a custom domain this
+     becomes "/". -->
+<base href="/ZyRompts/">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="stylesheet" href="assets/css/site.css">
 </head>

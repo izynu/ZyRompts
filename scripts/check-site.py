@@ -41,6 +41,12 @@ class PageScanner(HTMLParser):
         for key in ("href", "src"):
             value = values.get(key)
             if value:
+                # <base href> names where the site is mounted at deploy time
+                # ("/ZyRompts/" on GitHub Pages, "/" on a custom domain). It is
+                # not a path in the tree, so checking it against the filesystem
+                # would either fail wrongly or, worse, pass for any value.
+                if tag == "base" and key == "href":
+                    continue
                 self.refs.append(value)
         page_id = values.get("id")
         if page_id:
@@ -105,7 +111,18 @@ def main(argv: list[str]) -> int:
                     problems.append(f"{where}: no element with id '{parts.fragment}'")
                 continue
 
-            target = (page.parent / unquote(parts.path)).resolve()
+            # A root-absolute URL ("/repo/assets/x.css") is how a page served
+            # from an arbitrary path addresses the site root. On GitHub Pages
+            # the first segment is the repository name, which is not a
+            # directory on disk, so strip it before resolving.
+            path = unquote(parts.path)
+            if path.startswith("/"):
+                stripped = path.lstrip("/")
+                head, _, tail = stripped.partition("/")
+                path = tail if head and (root / tail).exists() else stripped
+                target = (root / path).resolve()
+            else:
+                target = (page.parent / path).resolve()
             if not target.exists():
                 problems.append(f"{where}: links to missing file '{parts.path}'")
                 continue
